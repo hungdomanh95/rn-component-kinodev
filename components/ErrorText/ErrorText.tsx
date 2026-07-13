@@ -7,7 +7,7 @@ export interface ErrorTextProps {
   style?: TextStyle;
 }
 
-const ErrorText: React.FC<ErrorTextProps> = ({ children, style }: ErrorTextProps) => (
+const ErrorText: React.FC<ErrorTextProps> = ({ children, style }) => (
   <Text style={[styles.text, style]}>{children}</Text>
 );
 

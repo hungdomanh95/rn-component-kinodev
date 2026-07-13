@@ -7,14 +7,14 @@ interface ToggleFieldProps extends Omit<ToggleProps, 'value' | 'onChange'> {
   name: string;
 }
 
-const ToggleField: React.FC<ToggleFieldProps> = ({ name, ...props }: ToggleFieldProps) => {
+const ToggleField: React.FC<ToggleFieldProps> = ({ name, ...props }) => {
   const [, meta, helpers] = useField(name);
 
   return (
     <Toggle
       {...props}
       value={!!meta.value}
-      onChange={(val: boolean) => helpers.setValue(val)}
+      onChange={(val) => helpers.setValue(val)}
     />
   );
 };

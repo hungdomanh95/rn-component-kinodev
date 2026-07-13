@@ -42,7 +42,7 @@ const TAB_FILTER = [
 
 
 
-const RangePicker:React.FC<RangePickerProps> = (props: RangePickerProps) => {
+const RangePicker:React.FC<RangePickerProps> = (props) => {
 
   const { onChange, picker = 'date' } = props;
 

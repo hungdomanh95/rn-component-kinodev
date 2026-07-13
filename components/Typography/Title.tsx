@@ -6,7 +6,7 @@ export interface TitleProps extends TextProps {
   style?: StyleProp<TextStyle>;
 }
 
-const Title: React.FC<TitleProps> = ({ style, ...props }: TitleProps) => {
+const Title: React.FC<TitleProps> = ({ style, ...props }) => {
   return <Text style={[styles.title, style]} {...props} />;
 };
 

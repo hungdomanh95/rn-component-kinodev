@@ -12,7 +12,7 @@ export interface BodyProps {
   style?: StyleProp<ViewStyle>;
 }
 
-const Body: React.FC<BodyProps> = ({ children, style }: BodyProps) => {
+const Body: React.FC<BodyProps> = ({ children, style }) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[{ flex: 1 }, style]}>

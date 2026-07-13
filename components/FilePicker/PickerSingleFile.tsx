@@ -11,8 +11,6 @@ export type PickerSingleFileProps = {
   setResponse?: React.Dispatch<
     React.SetStateAction<RnImgResize.Response | undefined>
   >;
-  testID?: string;
-  accessibilityLabel?: string;
 };
 
 const renderIcon = (format: "pdf" | "library" | "camera") => {
@@ -44,23 +42,14 @@ const renderIcon = (format: "pdf" | "library" | "camera") => {
 };
 
 const PickerSingleFile: React.FC<PickerSingleFileProps> = (props) => {
-  const { format, setResponse, response, testID, accessibilityLabel } = props;
+  const { format, setResponse, response } = props;
 
   const pickerHook = useFilePicker(setResponse);
 
   return (
-    <TouchPicker
-      onPress={() => pickerHook.onPress(format)}
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? format}
-    >
+    <TouchPicker onPress={() => pickerHook.onPress(format)}>
       {response?.uri! ? (
-        <ImageView
-          source={{ uri: response?.uri }}
-          resizeMode="contain"
-          testID={testID ? `${testID}-preview` : undefined}
-        />
+        <ImageView source={{ uri: response?.uri }} resizeMode="contain" />
       ) : (
         <>{renderIcon(format)}</>
       )}

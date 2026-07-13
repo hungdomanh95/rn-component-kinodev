@@ -7,7 +7,7 @@ export interface BadgeProps {
   style?: StyleProp<ViewStyle>;
 }
 
-const Badge: React.FC<BadgeProps> = ({ count, style }: BadgeProps) => {
+const Badge: React.FC<BadgeProps> = ({ count, style }) => {
   return (
     <View
       style={[

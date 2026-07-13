@@ -6,7 +6,7 @@ export interface LabelProps extends TextProps {
   style?: StyleProp<TextStyle>;
 }
 
-const Label: React.FC<LabelProps> = ({ style, ...props }: LabelProps) => {
+const Label: React.FC<LabelProps> = ({ style, ...props }) => {
   return <Text style={[styles.label, style]} {...props} />;
 };
 

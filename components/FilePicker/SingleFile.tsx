@@ -40,15 +40,13 @@ type SingleFileProps = {
   removeImage?: (key: string, idx: number) => void;
   id:string
   required?:boolean
-  testID?: string;
-  accessibilityLabel?: string;
 };
 
-const SingleFile: React.FC<SingleFileProps> = (props: SingleFileProps) => {
+const SingleFile: React.FC<SingleFileProps> = (props) => {
 
   const dispatch = useAppDispatch();
 
-  const {type,title, response, setResponse ,removeImage, required, testID, accessibilityLabel} = props
+  const {type,title, response, setResponse ,removeImage, required} = props
   console.log('SingleFile: ---------------', response);
 
   useEffect(() => {
@@ -62,15 +60,14 @@ const SingleFile: React.FC<SingleFileProps> = (props: SingleFileProps) => {
       const response = await openPicker({
         mediaType: "image" as MediaType,
         singleSelectedMode: true,
-      } as any);
-      const selectedImage = response as any;
+      });
       console.log("Image picker response: ", response);
 
       const imgResize = await resizeImage(
         {
-          path: String(selectedImage?.path),
-          maxWidth: Number(selectedImage?.width),
-          maxHeight: Number(selectedImage?.height)
+          path: String(response?.path),
+          maxWidth: Number(response?.width),
+          maxHeight: Number(response?.height)
         }
       )
 
@@ -104,24 +101,14 @@ const SingleFile: React.FC<SingleFileProps> = (props: SingleFileProps) => {
     switch (type) {
       case "single-img":
         return (
-          <S.ButtonUpload
-            onPress={handleImagePick}
-            testID={testID ? `${testID}-image` : undefined}
-            accessibilityRole="button"
-            accessibilityLabel="Chọn ảnh"
-          >
+          <S.ButtonUpload onPress={handleImagePick}>
             <Icon name="images" color={"#1A67BB"} size={15} />
             <S.TitleButton style={{ color: "#1A67BB" }}>Ảnh</S.TitleButton>
           </S.ButtonUpload>
         );
       case "single-file":
         return (
-          <S.ButtonUpload
-            onPress={onPickerPDF}
-            testID={testID ? `${testID}-pdf` : undefined}
-            accessibilityRole="button"
-            accessibilityLabel="Chọn PDF"
-          >
+          <S.ButtonUpload onPress={onPickerPDF}>
             <Icon name="attachment" color={color.secondary} size={15} />
             <S.TitleButton style={{ color: color.secondary }}>
               PDF
@@ -131,22 +118,12 @@ const SingleFile: React.FC<SingleFileProps> = (props: SingleFileProps) => {
       default:
         return (
           <>
-            <S.ButtonUpload
-              onPress={handleImagePick}
-              testID={testID ? `${testID}-image` : undefined}
-              accessibilityRole="button"
-              accessibilityLabel="Chọn ảnh"
-            >
+            <S.ButtonUpload onPress={handleImagePick}>
               <Icon name="images" color={"#1A67BB"} size={15} />
               <S.TitleButton style={{ color: "#1A67BB" }}>Ảnh</S.TitleButton>
             </S.ButtonUpload>
             <S.LineHorizontal />
-            <S.ButtonUpload
-              onPress={onPickerPDF}
-              testID={testID ? `${testID}-pdf` : undefined}
-              accessibilityRole="button"
-              accessibilityLabel="Chọn PDF"
-            >
+            <S.ButtonUpload onPress={onPickerPDF}>
               <Icon name="attachment" color={color.secondary} size={15} />
               <S.TitleButton style={{ color: color.secondary }}>
                 PDF
@@ -167,24 +144,18 @@ const SingleFile: React.FC<SingleFileProps> = (props: SingleFileProps) => {
   }
 
   return (
-    <S.ContainerSingle testID={testID} accessibilityLabel={accessibilityLabel ?? title}>
+    <S.ContainerSingle>
       <S.Title style={{ fontSize: 12, color: color.blackGray }}>
         {title} {required && <Required />}
       </S.Title>
       <S.ContentSingle style={{ backgroundColor: color.lightGray }}>
         {response && response?.path?.length > 0 ? (
           <>
-            <S.ButtonRemove
-              onPress={()=>removeImage?.(response.documentType, 0)}
-              testID={testID ? `${testID}-remove` : undefined}
-              accessibilityRole="button"
-              accessibilityLabel="Xóa file"
-            >
+            <S.ButtonRemove onPress={()=>removeImage?.(response.documentType, 0)}>
               <Icon name="x" color={color.darkGray} size={15} />
             </S.ButtonRemove>
             <TouchableWithoutFeedback onPress={() => handleOpenFile(response.id ? "link" : "local", response?.path)}>
               <S.ViewImage
-                testID={testID ? `${testID}-preview` : undefined}
                 source={{
                   uri: response?.path,
                   priority: FastImage.priority.high

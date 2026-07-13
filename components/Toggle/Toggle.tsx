@@ -14,11 +14,9 @@ export interface ToggleProps {
   description?: string;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
-  testID?: string;
-  accessibilityLabel?: string;
 }
 
-const Toggle: React.FC<ToggleProps> = ({ value = false, onChange, label, description, disabled, style, testID, accessibilityLabel }: ToggleProps) => {
+const Toggle: React.FC<ToggleProps> = ({ value = false, onChange, label, description, disabled, style }) => {
   const anim = useRef(new Animated.Value(value ? 1 : 0)).current;
 
   useEffect(() => {
@@ -48,9 +46,7 @@ const Toggle: React.FC<ToggleProps> = ({ value = false, onChange, label, descrip
       style={[styles.container, style, disabled && styles.disabled]}
       activeOpacity={0.8}
       onPress={handlePress}
-      testID={testID}
       accessibilityRole="switch"
-      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ checked: value, disabled }}
     >
       {(label || description) && (

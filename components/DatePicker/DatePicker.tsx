@@ -35,17 +35,14 @@ export interface DatePickerProps {
   confirmText?: string;
   cancelText?: string;
   locale?: string;
-  testID?: string;
-  accessibilityLabel?: string;
 }
 
-const DatePicker: React.FC<DatePickerProps> = (props: DatePickerProps) => {
+const DatePicker: React.FC<DatePickerProps> = (props) => {
   const {
     label, isRequired, disabled, noError, placeholder, mode = 'date',
     value, onChange, minimumDate, maximumDate, showClearButton,
     style, labelStyle, error, touched, title,
     confirmText = 'Xác nhận', cancelText = 'Hủy', locale = 'vi',
-    testID, accessibilityLabel,
   } = props;
 
   const [open, setOpen] = useState(false);
@@ -85,10 +82,6 @@ const DatePicker: React.FC<DatePickerProps> = (props: DatePickerProps) => {
       )}
 
       <TouchableOpacity
-        testID={testID}
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel ?? label ?? getPlaceholder()}
-        accessibilityState={{ disabled, expanded: open }}
         style={[
           styles.field,
           { borderColor: isFocused ? colors.secondary : colors.darkGray },
@@ -103,13 +96,7 @@ const DatePicker: React.FC<DatePickerProps> = (props: DatePickerProps) => {
         </Text>
 
         {showClearButton && hasValue && !disabled && (
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => onChange?.(undefined!)}
-            testID={testID ? `${testID}-clear` : undefined}
-            accessibilityRole="button"
-            accessibilityLabel={label ? `Xóa ${label}` : "Xóa ngày"}
-          >
+          <TouchableOpacity style={styles.iconButton} onPress={() => onChange?.(undefined!)}>
             <View style={styles.clearButton}>
               <Text style={styles.clearButtonText}>✕</Text>
             </View>
@@ -130,7 +117,7 @@ const DatePicker: React.FC<DatePickerProps> = (props: DatePickerProps) => {
         open={open}
         date={value ?? new Date()}
         mode={mode}
-        onConfirm={(date: Date) => { setOpen(false); setIsFocused(false); onChange?.(date); }}
+        onConfirm={(date) => { setOpen(false); setIsFocused(false); onChange?.(date); }}
         onCancel={() => { setOpen(false); setIsFocused(false); }}
         minimumDate={minimumDate}
         maximumDate={maximumDate}

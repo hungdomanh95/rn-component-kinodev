@@ -11,7 +11,7 @@ type DatePickerRangeProps = {
 
 const Text = styled.Text``
 
-const DatePickerRange:React.FC<DatePickerRangeProps> = (props: DatePickerRangeProps) => {
+const DatePickerRange:React.FC<DatePickerRangeProps> = (props) => {
 
   const { fromDate, toDate, onPress } = props;
 

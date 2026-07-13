@@ -8,7 +8,7 @@ type NoteBoxProps = {
   title?: string;
 };
 
-const NoteBox: React.FC<NoteBoxProps> = ({ children, title = "Lưu ý:" }: NoteBoxProps) => (
+const NoteBox: React.FC<NoteBoxProps> = ({ children, title = "Lưu ý:" }) => (
   <View style={styles.box}>
     <View style={styles.header}>
       <IconMaterial name="information" size={16} color={colors.secondary} />

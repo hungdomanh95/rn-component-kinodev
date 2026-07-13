@@ -12,16 +12,13 @@ const SIZE_MAP = {
   small: 8,
   middle: 12,
   large: 24,
-} as const;
+};
 
 const Space: React.FC<SpaceProps> = ({
   size = 'middle',
   direction = 'vertical',
 }) => {
-  const px =
-    typeof size === 'number'
-      ? size
-      : SIZE_MAP[size as keyof typeof SIZE_MAP];
+  const px = typeof size === 'number' ? size : SIZE_MAP[size];
 
   return (
     <View

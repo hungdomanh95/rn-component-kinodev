@@ -26,16 +26,14 @@ type MultiFileProps = {
   id:string
   required?:boolean
   typePicker?: "camera" | "all"
-  testID?: string;
-  accessibilityLabel?: string;
 }
 
 
-const MultiFile: React.FC<MultiFileProps> = (props: MultiFileProps) => {
+const MultiFile: React.FC<MultiFileProps> = (props) => {
 
   const dispatch = useAppDispatch();
 
-  const {type,title, response, setResponse ,removeImage, required, typePicker, testID, accessibilityLabel} = props
+  const {type,title, response, setResponse ,removeImage, required, typePicker} = props
 
   useEffect(() => {
     // FastImage.clearMemoryCache();
@@ -51,7 +49,7 @@ const MultiFile: React.FC<MultiFileProps> = (props: MultiFileProps) => {
       });
       console.log("Image picker response: ", response, response.length);
 
-      const resizedImages = await Promise.all(response.map(async (image: any) => {
+      const resizedImages = await Promise.all(response.map(async (image) => {
         const resizedImage = await resizeImage({
           path: image.path,
           maxWidth: image.width,
@@ -125,7 +123,7 @@ const MultiFile: React.FC<MultiFileProps> = (props: MultiFileProps) => {
     viewFile(type, path, handleRemoveLoading)
   }
   return (
-    <S.Container testID={testID} accessibilityLabel={accessibilityLabel ?? title}>
+    <S.Container>
       <S.Title>
         {title} {required && <Required />}
       </S.Title>
@@ -133,13 +131,8 @@ const MultiFile: React.FC<MultiFileProps> = (props: MultiFileProps) => {
         {response?.length > 0 ?
           <>
             {response.map((item:any,idx:number) => {
-              return  <S.ItemUpload style={{ backgroundColor: color.lightGray }} key={idx} testID={testID ? `${testID}-item-${idx}` : undefined}>
-              <S.ButtonRemove
-                onPress={() => removeImage?.(item.documentType, idx)}
-                testID={testID ? `${testID}-remove-${idx}` : undefined}
-                accessibilityRole="button"
-                accessibilityLabel="Xóa file"
-              >
+              return  <S.ItemUpload style={{ backgroundColor: color.lightGray }} key={idx}>
+              <S.ButtonRemove onPress={() => removeImage?.(item.documentType, idx)}>
                 <Icon name="x" color={color.darkGray} size={15} />
               </S.ButtonRemove>
 
@@ -167,35 +160,20 @@ const MultiFile: React.FC<MultiFileProps> = (props: MultiFileProps) => {
 
       <S.Upload>
         {typePicker === 'camera' ?
-          <S.ButtonUpload
-            onPress={handleCameraPick}
-            testID={testID ? `${testID}-camera` : undefined}
-            accessibilityRole="button"
-            accessibilityLabel="Chụp ảnh"
-          >
+          <S.ButtonUpload onPress={handleCameraPick}>
             <Icon name="camera" color={"#1A67BB"} size={20} />
             <S.TitleButton style={{color:"#1A67BB"}}>Chụp Ảnh</S.TitleButton>
           </S.ButtonUpload>
         :
         <>
-          <S.ButtonUpload
-            onPress={handleImagePick}
-            testID={testID ? `${testID}-library` : undefined}
-            accessibilityRole="button"
-            accessibilityLabel="Chọn ảnh"
-          >
+          <S.ButtonUpload onPress={handleImagePick}>
             <Icon name="images" color={"#1A67BB"} size={20} />
             <S.TitleButton style={{color:"#1A67BB"}}>Chọn Ảnh</S.TitleButton>
           </S.ButtonUpload>
 
           <S.LineVertical />
 
-          <S.ButtonUpload
-            onPress={onPickerPDF}
-            testID={testID ? `${testID}-pdf` : undefined}
-            accessibilityRole="button"
-            accessibilityLabel="Đính kèm PDF"
-          >
+          <S.ButtonUpload onPress={onPickerPDF} >
             <Icon name="attachment" color={color.secondary} size={20} />
             <S.TitleButton style={{color:color.secondary}}>Đính kèm PDF</S.TitleButton>
           </S.ButtonUpload>

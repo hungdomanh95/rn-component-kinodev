@@ -6,7 +6,7 @@ export interface TextProps2 extends TextProps {
   style?: StyleProp<TextStyle>;
 }
 
-const Text: React.FC<TextProps2> = ({ style, ...props }: TextProps2) => {
+const Text: React.FC<TextProps2> = ({ style, ...props }) => {
   return <RNText style={[styles.text, style]} {...props} />;
 };
 

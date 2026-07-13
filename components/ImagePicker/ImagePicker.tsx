@@ -27,8 +27,6 @@ export type ImagePickerProps = React.PropsWithChildren<{
   stypePreviewImage?: StyleProp<ImageStyle>;
   small?: boolean;
   disabled?: boolean;
-  testID?: string;
-  accessibilityLabel?: string;
 }>;
 
 export type ImagePickerRef = {
@@ -41,7 +39,7 @@ export type ImagePickerRef = {
   response: RnImagePicker.ImagePickerResponse | null;
 };
 
-const ImagePicker = forwardRef<ImagePickerRef, ImagePickerProps>((props: ImagePickerProps, ref: React.ForwardedRef<ImagePickerRef>) => {
+const ImagePicker = forwardRef<ImagePickerRef, ImagePickerProps>((props, ref) => {
   const [response, setResponse] = useState<RnImagePicker.ImagePickerResponse | null>(
     props?.defaultData ?? null
   );
@@ -147,17 +145,9 @@ const ImagePicker = forwardRef<ImagePickerRef, ImagePickerProps>((props: ImagePi
   useImperativeHandle(ref, () => ({ appendToFormData, setResponse, response }));
 
   return (
-    <S.Container
-      onPress={() => onPress(props.type)}
-      disabled={props?.isLoading || props?.disabled}
-      testID={props.testID}
-      accessibilityRole="button"
-      accessibilityLabel={props.accessibilityLabel ?? props.title ?? 'ImagePicker'}
-      accessibilityState={{ disabled: props?.isLoading || props?.disabled, busy: props?.isLoading }}
-    >
+    <S.Container onPress={() => onPress(props.type)} disabled={props?.isLoading || props?.disabled}>
       {response?.assets?.[0]?.uri ? (
         <Image
-          testID={props.testID ? `${props.testID}-preview` : undefined}
           source={{ uri: response.assets[0].uri }}
           resizeMode='contain'
           style={{ position: 'absolute', flex: 1, top: 0, right: 0, left: 0, bottom: 0 }}

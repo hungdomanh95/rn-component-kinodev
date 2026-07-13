@@ -7,10 +7,10 @@ export interface FooterProps {
   style?: StyleProp<ViewStyle>;
 }
 
-const Footer: React.FC<FooterProps> = ({ children, style }: FooterProps) => {
+const Footer: React.FC<FooterProps> = ({ children, style }) => {
   return (
     <View style={[styles.footer, style]}>
-      {React.Children.map(children, (child: React.ReactNode) => {
+      {React.Children.map(children, child => {
         if (!React.isValidElement(child)) return child;
         return React.cloneElement(child as React.ReactElement<any>, {
           style: [{ flex: 1 }, (child.props as any).style],
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: Platform.OS === "android" ? sizes.padding * 2 : sizes.padding * 3,
+    marginBottom: sizes.padding * 2,
     marginTop: sizes.padding * 2,
     paddingHorizontal: sizes.padding,
   },

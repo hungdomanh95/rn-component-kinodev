@@ -31,7 +31,7 @@ const months = [
   { value: 12, label: "Dec" },
 ];
 
-const MonthPickerRange: React.FC<MonthPickerRangeProps> = (props: MonthPickerRangeProps) => {
+const MonthPickerRange: React.FC<MonthPickerRangeProps> = (props) => {
   const { onPress, fromMonth, toMonth } = props;
 
   const { currentDay, currentMonth, currentYear } = dateRange.getCurrentTime();

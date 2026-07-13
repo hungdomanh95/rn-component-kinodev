@@ -7,14 +7,14 @@ interface CheckboxFieldProps extends Omit<CheckboxProps, 'value' | 'onChange' | 
   name: string;
 }
 
-const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, ...props }: CheckboxFieldProps) => {
+const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, ...props }) => {
   const [, meta, helpers] = useField(name);
 
   return (
     <Checkbox
       {...props}
       value={!!meta.value}
-      onChange={(val: boolean) => {
+      onChange={(val) => {
         helpers.setValue(val);
         helpers.setTouched(true);
       }}

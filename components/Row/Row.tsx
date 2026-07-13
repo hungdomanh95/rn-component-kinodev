@@ -19,7 +19,7 @@ const Row: React.FC<RowProps> = ({
   alignCenter,
   gap,
   style,
-}: RowProps) => {
+}) => {
   return (
     <View
       style={[

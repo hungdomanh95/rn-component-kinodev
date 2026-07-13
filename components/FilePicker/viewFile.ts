@@ -10,10 +10,10 @@ export const transferFile = async (path: string) => {
 
    await ReactNativeBlobUtil.config({ fileCache: true, appendExt: ext })
     .fetch("GET", path)
-    .then((res: any) => {
+    .then((res) => {
       result = res.data
     })
-    .catch((err: unknown) => {
+    .catch((err) => {
       console.log("err: transferFile", err);
       ToastController.error("Lỗi chuyển đổi file");
     });
@@ -25,7 +25,7 @@ export const viewFile = async ( type: "local" | "link",  path: string, handleRem
   if (type === "link") {
     const result = await transferFile(path);
     await FileViewer.open(result)
-      .catch((err: unknown) => {
+      .catch((err) => {
         console.log("err: FileViewer", err);
         ToastController.error("Lỗi mở file");
       })
@@ -34,7 +34,7 @@ export const viewFile = async ( type: "local" | "link",  path: string, handleRem
       });
   } else {
     await FileViewer.open(path)
-      .catch((err: unknown) => {
+      .catch((err) => {
         console.log("err: FileViewer local", err);
         ToastController.error("Lỗi mở file");
       })

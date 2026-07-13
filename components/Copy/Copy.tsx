@@ -21,7 +21,7 @@ const Container = styled.View`
   border-radius: 7px;
 `;
 
-const Copy: React.FC<CopyProps> = (props: CopyProps) => {
+const Copy: React.FC<CopyProps> = props => {
   const {value} = props;
 
   const [copiedText, setCopiedText] = useState<boolean>(false);

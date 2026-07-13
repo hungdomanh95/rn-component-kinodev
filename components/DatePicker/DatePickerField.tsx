@@ -7,7 +7,7 @@ interface DatePickerFieldProps extends Omit<DatePickerProps, 'value' | 'onChange
   name: string;
 }
 
-const DatePickerField: React.FC<DatePickerFieldProps> = ({ name, ...props }: DatePickerFieldProps) => {
+const DatePickerField: React.FC<DatePickerFieldProps> = ({ name, ...props }) => {
   const [, meta, helpers] = useField(name);
 
   const value = meta.value ? new Date(meta.value) : undefined;
@@ -16,7 +16,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({ name, ...props }: Dat
     <DatePicker
       {...props}
       value={value}
-      onChange={(date: Date) => {
+      onChange={(date) => {
         helpers.setValue(date.toISOString());
         helpers.setTouched(true);
       }}

@@ -7,14 +7,14 @@ interface SelectFieldProps extends Omit<SelectProps, "value" | "onBlur" | "error
   name: string;
 }
 
-const SelectField: React.FC<SelectFieldProps> = ({ name, onValueChange, ...props }: SelectFieldProps) => {
+const SelectField: React.FC<SelectFieldProps> = ({ name, onValueChange, ...props }) => {
   const [, meta, helpers] = useField(name);
 
   return (
     <Select
       {...props}
       value={meta.value}
-      onValueChange={(value: string | number | (string | number)[], option?: SelectOption | SelectOption[]) => {
+      onValueChange={(value, option) => {
         helpers.setValue(value);
         onValueChange?.(value, option);
       }}

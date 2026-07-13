@@ -33,8 +33,6 @@ export interface ModalProps {
   maxHeight?: number | `${number}%`;
   disableBackdropClose?: boolean;
   style?: StyleProp<ViewStyle>;
-  testID?: string;
-  accessibilityLabel?: string;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -42,8 +40,8 @@ const Modal: React.FC<ModalProps> = ({
   onConfirm, onCancel, showCancel = true,
   confirmText = 'Xác nhận', cancelText = 'Huỷ',
   footer, scrollable = false, maxHeight = SCREEN_HEIGHT * 0.80,
-  disableBackdropClose, style, testID, accessibilityLabel,
-}: ModalProps) => {
+  disableBackdropClose, style,
+}) => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [spacerHeight, setSpacerHeight] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
@@ -59,7 +57,7 @@ const Modal: React.FC<ModalProps> = ({
 
     const showSub = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (frames: { endCoordinates: { screenY: number; height: number; width: number } }) => {
+      (frames) => {
         const keyboardTop = frames.endCoordinates.screenY;
         const keyboardHeight = frames.endCoordinates.height;
 
@@ -110,14 +108,12 @@ const Modal: React.FC<ModalProps> = ({
       <View style={styles.footer}>
         {showCancel && (
           <Button text={cancelText} type="outline" onPress={handleCancel}
-            disabled={confirmLoading} style={styles.footerBtn}
-            testID={testID ? `${testID}-cancel` : undefined} />
+            disabled={confirmLoading} style={styles.footerBtn} />
         )}
         <Button text={confirmText} onPress={handleConfirm}
           loading={confirmLoading}
           color={type === 'error' ? colors.red : undefined}
-          style={styles.footerBtn}
-          testID={testID ? `${testID}-confirm` : undefined} />
+          style={styles.footerBtn} />
       </View>
     );
   };
@@ -155,27 +151,17 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <RNModal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <TouchableWithoutFeedback onPress={(!disableBackdropClose && !confirmLoading) ? onClose : undefined}>
-        <View style={styles.backdrop} testID={testID ? `${testID}-backdrop` : undefined} />
+        <View style={styles.backdrop} />
       </TouchableWithoutFeedback>
 
       <View style={styles.wrapper} pointerEvents="box-none">
-        <View
-          style={[styles.container, { maxHeight }, style]}
-          testID={testID}
-          accessibilityLabel={accessibilityLabel ?? title ?? 'Thông báo'}
-        >
+        <View style={[styles.container, { maxHeight }, style]}>
           <View style={styles.header}>
             {typeConfig && (
               <IconMaterial name={typeConfig.icon} size={sizes.iconMd} color={typeConfig.color} style={styles.typeIcon} />
             )}
             <Text style={styles.title}>{title ?? 'Thông báo'}</Text>
-            <TouchableOpacity
-              onPress={onClose}
-              hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
-              testID={testID ? `${testID}-close` : undefined}
-              accessibilityRole="button"
-              accessibilityLabel="Đóng"
-            >
+            <TouchableOpacity onPress={onClose} hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}>
               <IconMaterial name="close" size={sizes.iconMd} color={colors.blackGray} />
             </TouchableOpacity>
           </View>

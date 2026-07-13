@@ -9,7 +9,7 @@ interface InputFieldProps extends Omit<InputProps, "value" | "onChangeText" | "o
   defaultValue?: string;
 }
 
-const InputField: React.FC<InputFieldProps> = ({ name, defaultValue, ...props }: InputFieldProps) => {
+const InputField: React.FC<InputFieldProps> = ({ name, defaultValue, ...props }) => {
   const [, meta, helpers] = useField(name);
 
   useEffect(() => {

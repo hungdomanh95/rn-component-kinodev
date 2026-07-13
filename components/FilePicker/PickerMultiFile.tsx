@@ -4,15 +4,13 @@ import styled from 'styled-components/native'
 
 export type PickerMultiFileProps = {
   size: "small" | "large";
-  testID?: string;
-  accessibilityLabel?: string;
 };
 
 const Text = styled.Text``
 
-const PickerMultiFile:React.FC<PickerMultiFileProps> = ({ testID, accessibilityLabel }) => {
+const PickerMultiFile:React.FC<PickerMultiFileProps> = () => {
   return (
-    <SafeAreaView testID={testID} accessibilityLabel={accessibilityLabel}>
+    <SafeAreaView>
       <Text>PickerMultiFile</Text>
     </SafeAreaView>
   )

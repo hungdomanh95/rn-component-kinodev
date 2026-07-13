@@ -29,7 +29,6 @@ export interface AddressFieldsProps {
   initialDistrictName?: string;
   initialWardName?: string;
   disabled?: boolean;
-  testIDPrefix?: string;
 }
 
 type Cache = Record<string, SelectOption[]>;
@@ -51,8 +50,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   initialDistrictName,
   initialWardName,
   disabled,
-  testIDPrefix,
-}: AddressFieldsProps) => {
+}) => {
   const dispatch = useAppDispatch();
   const { values, setFieldValue } = useFormikContext<any>();
 
@@ -124,7 +122,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   useEffect(() => {
     if (pId) {
       currentProvinceId.current = pId;
-      if (pName && !provinceOptions.find((o: SelectOption) => String(o.value) === String(pId))) {
+      if (pName && !provinceOptions.find(o => String(o.value) === String(pId))) {
         setProvinceOptions([{ value: pId, label: pName }]);
       }
     }
@@ -133,7 +131,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   useEffect(() => {
     if (dId) {
       currentDistrictId.current = dId;
-      if (dName && !districtOptions.find((o: SelectOption) => String(o.value) === String(dId))) {
+      if (dName && !districtOptions.find(o => String(o.value) === String(dId))) {
         setDistrictOptions([{ value: dId, label: dName }]);
       }
     }
@@ -141,7 +139,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
   useEffect(() => {
     if (wId) {
-      if (wName && !wardOptions.find((o: SelectOption) => String(o.value) === String(wId))) {
+      if (wName && !wardOptions.find(o => String(o.value) === String(wId))) {
         setWardOptions([{ value: wId, label: wName }]);
       }
     }
@@ -156,7 +154,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
       setProvinceOptions(toOptions(listProvince));
     } else {
       const result = await dispatch(getAllProvince({ sourceSystem })).unwrap();
-      setProvinceOptions(toOptions((result as any)?.data ?? result));
+      setProvinceOptions(toOptions(result));
     }
     setProvinceLoading(false);
   };
@@ -171,7 +169,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
     }
     setDistrictLoading(true);
     const list = await AddressService.getDistrictList(id);
-    const opts = toOptions((list as any)?.data ?? list);
+    const opts = toOptions(list);
     districtCache[id] = opts;
     setDistrictOptions(opts);
     setDistrictLoading(false);
@@ -187,7 +185,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
     }
     setWardLoading(true);
     const list = await AddressService.getWardList(id);
-    const opts = toOptions((list as any)?.data ?? list);
+    const opts = toOptions(list);
     wardCache[id] = opts;
     setWardOptions(opts);
     setWardLoading(false);
@@ -226,7 +224,6 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
         loading={provinceLoading}
         onOpen={loadProvinces}
         onValueChange={onProvinceChange}
-        testID={testIDPrefix ? `${testIDPrefix}-province` : undefined}
       />
       <SelectField
         name={f.districtId}
@@ -239,7 +236,6 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
         loading={districtLoading}
         onOpen={loadDistricts}
         onValueChange={onDistrictChange}
-        testID={testIDPrefix ? `${testIDPrefix}-district` : undefined}
       />
       <SelectField
         name={f.wardId}
@@ -250,9 +246,8 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
         searchable
         disabled={!dId || disabled}
         loading={wardLoading}
-        testID={testIDPrefix ? `${testIDPrefix}-ward` : undefined}
         onOpen={loadWards}
-        onValueChange={(_val: string | number | (string | number)[], option: any) => {
+        onValueChange={(_val, option: any) => {
           setFieldValue(f.wardName, option?.label ?? '');
           setFieldValue(f.zipCode, option?.data?.zip_code);
         }}

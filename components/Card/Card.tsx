@@ -16,7 +16,7 @@ export interface CardProps {
   style?: StyleProp<ViewStyle>;
 }
 
-const Card: React.FC<CardProps> = ({ children, onPress, style }: CardProps) => {
+const Card: React.FC<CardProps> = ({ children, onPress, style }) => {
   if (onPress) {
     return (
       <TouchableOpacity

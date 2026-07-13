@@ -24,8 +24,6 @@ export interface ButtonProps {
   iconPosition?: 'left' | 'right';
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
-  testID?: string;
-  accessibilityLabel?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -39,9 +37,7 @@ const Button: React.FC<ButtonProps> = ({
   iconPosition = 'left',
   style,
   textStyle,
-  testID,
-  accessibilityLabel,
-}: ButtonProps) => {
+}) => {
   const isPrimary = type === 'primary';
   const isOutline = type === 'outline';
 
@@ -60,10 +56,6 @@ const Button: React.FC<ButtonProps> = ({
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.75}
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? text}
-      accessibilityState={{ disabled: disabled || loading, busy: loading }}
     >
       {loading ? (
         <ActivityIndicator color={textColor} size="small" />

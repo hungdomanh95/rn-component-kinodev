@@ -49,14 +49,12 @@ export interface InputProps extends TextInputProps {
   accentColor?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Input: React.FC<InputProps> = (props: any) => {
+const Input: React.FC<InputProps> = (props) => {
   const {
     label, isRequired, disabled, noError, style, labelStyle, inputStyle,
     placeholder, multiline, numberOfLines = 1, typeValue, showClearButton = true,
     secureTextEntry, autoFocus, leftIcon, rightIcon, suffix, hint,
-    value = "", onChangeText, onBlur, error, touched, accentColor,
-    testID, accessibilityLabel, ...inputProps
+    value = "", onChangeText, onBlur, error, touched, accentColor, ...inputProps
   } = props;
 
   const inputRef = useRef<TextInput>(null);
@@ -110,10 +108,7 @@ const Input: React.FC<InputProps> = (props: any) => {
   const hasValue = !!value && value.length > 0;
 
   return (
-    <View
-      style={[styles.container, style, disabled && styles.disabled]}
-      testID={testID ? `${testID}-container` : undefined}
-    >
+    <View style={[styles.container, style, disabled && styles.disabled]}>
       {label && (
         <View style={styles.labelRow}>
           <Animated.Text style={[styles.label, { color: labelColor }, labelStyle]}>
@@ -137,8 +132,6 @@ const Input: React.FC<InputProps> = (props: any) => {
         <TextInput
           {...inputProps}
           ref={inputRef}
-          testID={testID}
-          accessibilityLabel={accessibilityLabel ?? label ?? placeholder}
           style={[styles.input, multiline && { textAlignVertical: "top", paddingTop: sizes.inputPadding }, inputStyle]}
           value={displayValue}
           onChangeText={handleChange}
@@ -159,9 +152,6 @@ const Input: React.FC<InputProps> = (props: any) => {
           <TouchableOpacity
             style={[styles.iconButton, multiline && styles.iconButtonMultiline]}
             onPress={() => onChangeText?.("")}
-            testID={testID ? `${testID}-clear` : undefined}
-            accessibilityRole="button"
-            accessibilityLabel={label ? `Xóa ${label}` : "Xóa nội dung"}
           >
             <View style={styles.clearButton}>
               <Text style={styles.clearButtonText}>✕</Text>
@@ -170,13 +160,7 @@ const Input: React.FC<InputProps> = (props: any) => {
         )}
 
         {secureTextEntry && (
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-            testID={testID ? `${testID}-toggle-password` : undefined}
-            accessibilityRole="button"
-            accessibilityLabel={isPasswordVisible ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-          >
+          <TouchableOpacity style={styles.iconButton} onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
             <IconMaterial
               name={isPasswordVisible ? "eye-outline" : "eye-off-outline"}
               size={sizes.iconMd}

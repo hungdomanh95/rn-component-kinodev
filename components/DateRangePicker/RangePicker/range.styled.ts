@@ -54,7 +54,7 @@ export const Picker = styled.TouchableOpacity<Props>`
   border-width: 1px;
   background-color: white;
 
-  ${({ active }: Props) => {
+  ${({ active }) => {
     return `
       border-color: ${active ? color.secondary : color.darkGray};
     `;

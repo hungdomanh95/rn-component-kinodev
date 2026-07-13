@@ -22,11 +22,9 @@ export interface RadioProps {
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
   accentColor?: string;
-  testID?: string;
-  accessibilityLabel?: string;
 }
 
-const Radio: React.FC<RadioProps> = ({ data, value, onChange, label, isRequired, direction = 'column', disabled, noError, error, touched, style, labelStyle, accentColor, testID, accessibilityLabel }: RadioProps) => {
+const Radio: React.FC<RadioProps> = ({ data, value, onChange, label, isRequired, direction = 'column', disabled, noError, error, touched, style, labelStyle, accentColor }) => {
   const hasError = touched && !!error;
 
   return (
@@ -37,16 +35,12 @@ const Radio: React.FC<RadioProps> = ({ data, value, onChange, label, isRequired,
         </Text>
       )}
       <View style={[styles.optionsWrapper, direction === 'row' && styles.optionsRow]}>
-        {data.map((option: RadioOption) => {
+        {data.map((option) => {
           const isSelected = value === option.value;
           const isDisabled = disabled || option.disabled;
           return (
             <TouchableOpacity
               key={String(option.value)}
-              testID={testID ? `${testID}-option-${String(option.value)}` : undefined}
-              accessibilityRole="radio"
-              accessibilityLabel={option.label || accessibilityLabel || label}
-              accessibilityState={{ checked: isSelected, disabled: isDisabled }}
               style={[styles.option, direction === 'row' && styles.optionRow, isDisabled && styles.disabled]}
               onPress={() => !isDisabled && onChange?.(option.value)}
               activeOpacity={0.7}

@@ -45,11 +45,9 @@ export interface SelectProps {
   onBlur?: () => void;
   error?: string;
   touched?: boolean;
-  testID?: string;
-  accessibilityLabel?: string;
 }
 
-const Select: React.FC<SelectProps> = (props: SelectProps) => {
+const Select: React.FC<SelectProps> = (props) => {
   const {
     label, isRequired, disabled, noError,
     placeholder = "Chọn...", options = [],
@@ -59,7 +57,6 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
     leftIcon, emptyText = "Không có dữ liệu",
     loading = false, onOpen,
     value, onValueChange, onBlur, error, touched,
-    testID, accessibilityLabel,
   } = props;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -84,7 +81,7 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
   useEffect(() => {
     const showSub = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e: { endCoordinates: { height: number } }) => {
+      (e) => {
         if (!isModalVisibleRef.current) return;
         const kbHeight = e.endCoordinates.height;
         if (targetKbHeightRef.current === kbHeight) return;
@@ -171,7 +168,7 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
 
   const displayText = useMemo((): string => {
     if (selectedOptions.length === 0) return "";
-    if (multiple) return selectedOptions.map((opt: SelectOption) => opt.label).join(", ");
+    if (multiple) return selectedOptions.map((opt) => opt.label).join(", ");
     return selectedOptions[0]?.label || "";
   }, [selectedOptions, multiple]);
 
@@ -233,10 +230,6 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
       const selected = isOptionSelected(item);
       return (
         <TouchableOpacity
-          testID={testID ? `${testID}-option-${String(item.value)}` : undefined}
-          accessibilityRole="button"
-          accessibilityLabel={item.label}
-          accessibilityState={{ selected, disabled: item.disabled }}
           style={[styles.optionItem, selected && styles.optionItemSelected, item.disabled && styles.optionItemDisabled]}
           onPress={() => handleSelect(item)}
           disabled={item.disabled}
@@ -266,10 +259,6 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
       )}
 
       <TouchableOpacity
-        testID={testID}
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel ?? label ?? placeholder}
-        accessibilityState={{ disabled, expanded: isModalVisible }}
         style={[styles.selectBox, { borderColor: isFocused ? colors.secondary : colors.darkGray }, hasError && styles.selectBoxError]}
         onPress={openModal}
         disabled={disabled}
@@ -280,13 +269,7 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
           {hasValue ? displayText : placeholder}
         </Text>
         {showClearButton && hasValue && !disabled && (
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={handleClear}
-            testID={testID ? `${testID}-clear` : undefined}
-            accessibilityRole="button"
-            accessibilityLabel={label ? `Xóa ${label}` : "Xóa lựa chọn"}
-          >
+          <TouchableOpacity style={styles.iconButton} onPress={handleClear}>
             <View style={styles.clearButton}>
               <Text style={styles.clearButtonText}>✕</Text>
             </View>
@@ -299,7 +282,6 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
 
       <Modal visible={isModalVisible} transparent animationType="none" onRequestClose={closeModal} statusBarTranslucent>
         <KeyboardAvoidingView
-          testID={testID ? `${testID}-modal` : undefined}
           behavior="padding"
           enabled={Platform.OS === 'ios'}
           style={styles.modalContainer}
@@ -314,13 +296,7 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
           ]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{modalTitle || label || "Chọn"}</Text>
-              <TouchableOpacity
-                onPress={closeModal}
-                style={styles.closeButton}
-                testID={testID ? `${testID}-close` : undefined}
-                accessibilityRole="button"
-                accessibilityLabel="Đóng"
-              >
+              <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
                 <IconMaterial name="close" size={sizes.iconLg} color={colors.blackGray} />
               </TouchableOpacity>
             </View>
@@ -329,8 +305,6 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
               <View style={styles.searchContainer}>
                 <IconMaterial name="magnify" size={sizes.iconSm} color={colors.gray} />
                 <TextInput
-                  testID={testID ? `${testID}-search` : undefined}
-                  accessibilityLabel={searchPlaceholder}
                   style={styles.searchInput}
                   placeholder={searchPlaceholder}
                   placeholderTextColor={colors.gray}
@@ -339,12 +313,7 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
                   autoCorrect={false}
                 />
                 {searchText.length > 0 && (
-                  <TouchableOpacity
-                    onPress={() => setSearchText("")}
-                    testID={testID ? `${testID}-search-clear` : undefined}
-                    accessibilityRole="button"
-                    accessibilityLabel="Xóa tìm kiếm"
-                  >
+                  <TouchableOpacity onPress={() => setSearchText("")}>
                     <IconMaterial name="close-circle" size={sizes.iconSm} color={colors.gray} />
                   </TouchableOpacity>
                 )}
@@ -354,7 +323,7 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
             <FlatList
               ref={flatListRef}
               data={filteredOptions}
-              keyExtractor={(item: SelectOption) => String(item.value)}
+              keyExtractor={(item) => String(item.value)}
               renderItem={renderOption}
               style={styles.optionsList}
               keyboardShouldPersistTaps="handled"
@@ -362,7 +331,7 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
               windowSize={5}
               maxToRenderPerBatch={10}
               removeClippedSubviews={true}
-              getItemLayout={(_: SelectOption[] | null | undefined, index: number) => ({ length: sizes.selectItemHeight, offset: sizes.selectItemHeight * index, index })}
+              getItemLayout={(_, index) => ({ length: sizes.selectItemHeight, offset: sizes.selectItemHeight * index, index })}
               onScrollToIndexFailed={() => {}}
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
@@ -373,13 +342,7 @@ const Select: React.FC<SelectProps> = (props: SelectProps) => {
             />
 
             {multiple && (
-              <TouchableOpacity
-                style={styles.doneButton}
-                onPress={closeModal}
-                testID={testID ? `${testID}-done` : undefined}
-                accessibilityRole="button"
-                accessibilityLabel="Xong"
-              >
+              <TouchableOpacity style={styles.doneButton} onPress={closeModal}>
                 <Text style={styles.doneButtonText}>
                   Xong {selectedOptions.length > 0 && `(${selectedOptions.length})`}
                 </Text>

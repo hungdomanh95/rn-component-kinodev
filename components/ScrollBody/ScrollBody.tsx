@@ -24,7 +24,7 @@ const ScrollBody: React.FC<ScrollBodyProps> = ({
   scrollRef,
   style,
   contentContainerStyle,
-}: ScrollBodyProps) => {
+}) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const scrollOffsetRef = useRef(0);
   const preKeyboardOffsetRef = useRef(0);
@@ -36,7 +36,7 @@ const ScrollBody: React.FC<ScrollBodyProps> = ({
   useEffect(() => {
     const showSub = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (frames: { endCoordinates: { screenY: number; height: number; width: number } }) => {
+      (frames) => {
         preKeyboardOffsetRef.current = scrollOffsetRef.current;
         restoredRef.current = false;
 

@@ -8,7 +8,7 @@ type IconPasswordProps = {
   setSecureTextEntry: React.Dispatch<React.SetStateAction<boolean>>
 };
 
-const IconPassword: React.FC<IconPasswordProps> = (props: IconPasswordProps) => {
+const IconPassword: React.FC<IconPasswordProps> = (props) => {
 
   const {secureTextEntry,setSecureTextEntry} = props
 
