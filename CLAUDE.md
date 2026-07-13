@@ -55,7 +55,7 @@ Every form input has two variants:
 | `Checkbox` / `CheckboxField` | `Checkbox/` | Single checkbox with label/description |
 | `Toggle` / `ToggleField` | `Toggle/` | iOS-style switch |
 | `Radio` / `RadioField` | `Radio/` | Radio group, supports row/column layout |
-| `Address` | `Address/AddressFields.tsx` | Formik-only. Cascading Province/District/Ward dropdowns. Reads province list from Redux, fetches district/ward from AddressService |
+| `Address` | `Address/AddressFields.tsx` | Formik-only. Cascading Province/District/Ward dropdowns. Data-driven via `provinces`/`loadProvinces`/`loadDistricts`/`loadWards` props — host app supplies its own data source |
 | `Button` | `Button/` | Variants: primary (filled), outline, text |
 | `Card` | `Card/` | Container with optional `onPress` |
 | `Modal` / `GlobalModal` | `Modal/` | Modal with overlay. `GlobalModal` enables imperative usage via `ModalManager` |
@@ -78,9 +78,8 @@ Every form input has two variants:
 
 ## Address Component Details
 
-`AddressFields` is tightly coupled to the main app:
-- Reads province list from Redux (`useSelector`)
-- Calls `AddressService.getDistricts()` / `AddressService.getWards()` on selection
+`AddressFields` is data-driven and has no app-internal dependencies:
+- Host app must pass `loadProvinces`, `loadDistricts(provinceId)`, `loadWards(districtId)` callbacks; optionally a preloaded `provinces` list to skip the initial fetch
 - Uses module-level cache to avoid redundant API calls across re-mounts
 - Supports two field-naming modes: flat (`perProvinceId`) or nested (`address.provinceId`)
 - Accepts `initialProvinceName`, `initialDistrictName`, `initialWardName` for pre-fill

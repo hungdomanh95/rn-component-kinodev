@@ -1,4 +1,3 @@
-import Icon from 'assets/icons';
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import isoWeek from 'dayjs/plugin/isoWeek';
@@ -6,13 +5,13 @@ import utc from 'dayjs/plugin/utc';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View } from 'react-native';
-import styled from 'styled-components/native';
-import { color, size } from 'theme';
+import { colors, sizes } from '../../../theme';
 import DatePickerRange from './Date';
 import { dateRange } from './dateRange';
 import MonthPicker from './Month';
 import * as S from './range.styled';
 import { Text } from '../../Typography';
+import Icon from '../../Icon/Icon';
 
 
 dayjs.extend(customParseFormat)
@@ -202,7 +201,7 @@ const RangePicker:React.FC<RangePickerProps> = (props) => {
             {renderFrom()}
             {/* <Text>{fromDate ? dayjs(fromDate).format('DD-MM-YYYY') : "----/--/--"}</Text> */}
             <S.ButtonRemove onPress={removeFrom} >
-              <Icon name="x" color={color.white} size={12} />
+              <Icon name="x" color={colors.white} size={12} />
             </S.ButtonRemove>
           </S.Picker>
         </S.DatePicker>
@@ -212,14 +211,14 @@ const RangePicker:React.FC<RangePickerProps> = (props) => {
             {renderTo()}
             {/* <Text>{toDate ? dayjs(toDate).format('DD-MM-YYYY') : "----/--/--"}</Text> */}
             <S.ButtonRemove onPress={removeTo} >
-              <Icon name="x" color={color.white} size={12} />
+              <Icon name="x" color={colors.white} size={12} />
             </S.ButtonRemove>
           </S.Picker>
         </S.DatePicker>
       </S.ContainerDate>
 
       {(pickFrom || pickTo) &&
-        <View style={{marginTop:size.spacing, borderRadius:8, overflow: 'hidden',}}>
+        <View style={{marginTop:sizes.spacing, borderRadius:8, overflow: 'hidden',}}>
           {picker === 'month' ?
             <MonthPicker fromMonth={fromMonth} toMonth={toMonth} onPress={handleMonthPress}  />
             :

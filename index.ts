@@ -25,5 +25,3 @@ export * from './components/ErrorText';
 export * from './components/Copy';
 export * from './components/FilePicker';
 export * from './components/DateRangePicker';
-export * from './components/ImagePicker';
-export * from './components/IconPassword';

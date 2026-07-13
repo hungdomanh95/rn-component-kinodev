@@ -2,7 +2,7 @@ import { View, SafeAreaView } from 'react-native'
 import React, { useCallback } from 'react'
 import styled from 'styled-components/native'
 import { Calendar, CalendarUtils } from "react-native-calendars";
-import { color } from 'theme';
+import { colors } from '../../../../theme';
 type DatePickerRangeProps = {
   fromDate: string
   toDate: string
@@ -50,8 +50,8 @@ const DatePickerRange:React.FC<DatePickerRangeProps> = (props) => {
         markedDates={renderPeriod()}
         minDate={fromDate}
         theme={{
-          arrowColor: color.secondary,
-          todayTextColor: color.secondary,
+          arrowColor: colors.secondary,
+          todayTextColor: colors.secondary,
         }}
         enableSwipeMonths
         hideExtraDays

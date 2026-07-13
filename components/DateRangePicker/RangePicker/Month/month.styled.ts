@@ -1,6 +1,6 @@
 import { Row } from "../../../Row";
 import styled from "styled-components/native";
-import { color, size } from "theme";
+import { colors, sizes } from "../../../../theme";
 
 export const ButtonChevron = styled.TouchableOpacity`
   height: 40px;
@@ -34,7 +34,7 @@ export const ItemPicker = styled.TouchableOpacity<tabProps>`
   border: 1px solid #ECEFF4;
 `
 export const LabelMonth = styled.Text<tabProps>`
-   color: ${(props: any) => (props.active || props.child) ? color.white : props.current ? color.secondary : color.black};
+   color: ${(props: any) => (props.active || props.child) ? colors.white : props.current ? colors.secondary : colors.black};
    font-weight: 500;
    font-size: 16px;
 `
@@ -42,5 +42,5 @@ export const LabelMonth = styled.Text<tabProps>`
 export const ActionYear = styled(Row)`
   justify-content: space-between;
   align-items: center;
-  padding-bottom: ${size.spacing}px;
+  padding-bottom: ${sizes.spacing}px;
 `

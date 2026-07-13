@@ -1,8 +1,5 @@
 import { useFormikContext } from "formik";
-import { useAppDispatch, useAppSelector } from "hooks/redux";
 import React, { useEffect, useRef, useState } from "react";
-import AddressService from "services/address.service";
-import { getAllProvince } from "stores/province";
 import { SelectOption } from "../Select/Select";
 import SelectField from "../Select/SelectField";
 
@@ -29,6 +26,14 @@ export interface AddressFieldsProps {
   initialDistrictName?: string;
   initialWardName?: string;
   disabled?: boolean;
+  /**
+   * Danh sách tỉnh/thành đã có sẵn (vd cache/Redux của app host) — nếu truyền,
+   * bỏ qua gọi loadProvinces khi list đã có dữ liệu.
+   */
+  provinces?: AddressItem[];
+  loadProvinces: () => Promise<AddressItem[]>;
+  loadDistricts: (provinceId: string) => Promise<AddressItem[]>;
+  loadWards: (districtId: string) => Promise<AddressItem[]>;
 }
 
 type Cache = Record<string, SelectOption[]>;
@@ -37,7 +42,7 @@ type Cache = Record<string, SelectOption[]>;
 const districtCacheGlobal: Cache = {};
 const wardCacheGlobal: Cache = {};
 
-const toOptions = (list: any[]): SelectOption[] =>
+const toOptions = (list: AddressItem[]): SelectOption[] =>
   list.map(item => ({ value: item.id, label: item.name, data: item }));
 
 const seedOption = (id: any, name?: string): SelectOption[] =>
@@ -50,13 +55,15 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
   initialDistrictName,
   initialWardName,
   disabled,
+  provinces,
+  loadProvinces: loadProvincesProp,
+  loadDistricts: loadDistrictsProp,
+  loadWards: loadWardsProp,
 }) => {
-  const dispatch = useAppDispatch();
   const { values, setFieldValue } = useFormikContext<any>();
 
-  // Province list từ Redux — không gọi API nếu đã có
-  const listProvince = useAppSelector((state: any) => state.province.listProvince ?? []);
-  const sourceSystem = useAppSelector((state: any) => state.package.sourceSystem);
+  // Province list do host truyền vào — không gọi API nếu đã có
+  const listProvince = provinces ?? [];
 
   const f = {
     provinceId:   name ? `${name}.provinceId`   : `${prefix}ProvinceId`,
@@ -75,12 +82,12 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
 
   /**
    * Case 3: có id nhưng không có name
-   * Province → resolve ngay từ Redux store (đồng bộ, không cần API)
+   * Province → resolve ngay từ list truyền vào (đồng bộ, không cần API)
    * District/Ward → fetch on mount (xem useEffect bên dưới)
    */
   const resolvedProvinceName =
     initialProvinceName ||
-    (pId ? listProvince.find((p: any) => String(p.id) === String(pId))?.name : undefined);
+    (pId ? listProvince.find((p) => String(p.id) === String(pId))?.name : undefined);
 
   const [provinceOptions, setProvinceOptions] = useState<SelectOption[]>(
     () => seedOption(pId, resolvedProvinceName)
@@ -145,7 +152,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
     }
   }, [wId]);
 
-  // Province: ưu tiên Redux store, chỉ gọi API nếu store trống
+  // Province: ưu tiên list host truyền vào, chỉ gọi loadProvinces nếu chưa có
   const loadProvinces = async () => {
     if (provinceLoaded.current || provinceLoading) return;
     provinceLoaded.current = true;
@@ -153,7 +160,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
     if (listProvince.length > 0) {
       setProvinceOptions(toOptions(listProvince));
     } else {
-      const result = await dispatch(getAllProvince({ sourceSystem })).unwrap();
+      const result = await loadProvincesProp();
       setProvinceOptions(toOptions(result));
     }
     setProvinceLoading(false);
@@ -168,7 +175,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
       return;
     }
     setDistrictLoading(true);
-    const list = await AddressService.getDistrictList(id);
+    const list = await loadDistrictsProp(id);
     const opts = toOptions(list);
     districtCache[id] = opts;
     setDistrictOptions(opts);
@@ -184,7 +191,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
       return;
     }
     setWardLoading(true);
-    const list = await AddressService.getWardList(id);
+    const list = await loadWardsProp(id);
     const opts = toOptions(list);
     wardCache[id] = opts;
     setWardOptions(opts);

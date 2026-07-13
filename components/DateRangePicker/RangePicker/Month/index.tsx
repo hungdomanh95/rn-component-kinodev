@@ -2,10 +2,9 @@ import { View, SafeAreaView, TouchableOpacity } from "react-native";
 import React from "react";
 import styled from "styled-components/native";
 import * as S from "./month.styled";
-import Icon from "assets/icons";
+import Icon from "../../../Icon/Icon";
 import { Row } from "../../../Row";
 import { dateRange } from "../dateRange";
-import { size } from "theme";
 import dayjs from "dayjs";
 
 type MonthPickerRangeProps = {
