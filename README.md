@@ -30,7 +30,7 @@ import { Button, Input, Select, Row, Text } from 'rn-component-kinodev';
 | `Toggle` / `ToggleField` | Switch kiểu iOS |
 | `Radio` / `RadioField` | Radio group |
 | `Address` (`AddressFields`) | Cascading Province/District/Ward. Data-driven qua props `provinces`/`loadProvinces`/`loadDistricts`/`loadWards` — app host tự cung cấp nguồn dữ liệu |
-| `FilePicker` (`MultiFile`, `SingleFile`, `transferFile`, `viewFile`) | Vẫn còn gắn một số module nội bộ của app host hiện tại (Redux, ToastController, theme riêng) — sẽ decouple ở phiên bản sau |
+| `FilePicker` (`MultiFile`, `SingleFile`, `transferFile`, `viewFile`) | **Chưa export ra `index.ts` gốc** — vẫn gắn module nội bộ của mcrm-mobile-app (Redux, ToastController, theme riêng) nên chưa an toàn để dùng ở project khác. Import trực tiếp từ `rn-component-kinodev/components/FilePicker` nếu thực sự cần (chỉ dùng được trong mcrm-mobile-app). Sẽ decouple và export lại ở phiên bản sau |
 | `Button` | Variants: primary, outline, text |
 | `Card` | Container, hỗ trợ `onPress` |
 | `Modal` / `GlobalModal` | Modal có overlay. `GlobalModal` dùng theo kiểu imperative qua `ModalManager` |

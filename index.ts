@@ -23,5 +23,4 @@ export * from './components/Badge';
 export * from './components/Required';
 export * from './components/ErrorText';
 export * from './components/Copy';
-export * from './components/FilePicker';
 export * from './components/DateRangePicker';
