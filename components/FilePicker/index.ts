@@ -1,3 +1,7 @@
-export { default as MultiFile } from './MultiFile';
-export { default as SingleFile } from './SingleFile';
-export { transferFile, viewFile } from './viewFile';
+export { default as FilePicker } from './FilePicker';
+export type { ButtonType, FilePickerProps } from './FilePicker';
+export { convertData, transferFile, viewFile } from './handleFile';
+export type { ResponsePickerType } from './handleFile';
+export { resizeImage } from './resizeImage';
+export { handlePermission } from './permission';
+export type { PermissionType } from './permission';

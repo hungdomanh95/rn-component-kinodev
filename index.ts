@@ -24,3 +24,4 @@ export * from './components/Required';
 export * from './components/ErrorText';
 export * from './components/Copy';
 export * from './components/DateRangePicker';
+export * from './components/FilePicker';
