@@ -19,7 +19,29 @@ export interface SelectOption {
   label: string;
   disabled?: boolean;
   data?: any;
+  /** Optional group label. Consecutive options sharing the same group are rendered under one
+   * filled section header band. Options without a group render as before. */
+  group?: string;
 }
+
+type DisplayRow =
+  | { kind: "header"; key: string; label: string }
+  | { kind: "option"; key: string; option: SelectOption };
+
+const GROUP_HEADER_HEIGHT = sizes.selectItemHeight;
+
+const buildDisplayRows = (options: SelectOption[]): DisplayRow[] => {
+  const rows: DisplayRow[] = [];
+  let lastGroup: string | undefined;
+  options.forEach((option, index) => {
+    if (option.group && option.group !== lastGroup) {
+      rows.push({ kind: "header", key: `header-${option.group}-${index}`, label: option.group });
+    }
+    lastGroup = option.group;
+    rows.push({ kind: "option", key: String(option.value), option });
+  });
+  return rows;
+};
 
 export interface SelectProps {
   label?: string;
@@ -125,16 +147,6 @@ const Select: React.FC<SelectProps> = (props) => {
   }, [isFocused]);
 
   useEffect(() => {
-    if (!isModalVisible || !value || !flatListRef.current) return;
-    const timer = setTimeout(() => {
-      const selectedValue = multiple ? (Array.isArray(value) ? value[0] : value) : value;
-      const index = options.findIndex((opt) => opt.value === selectedValue);
-      if (index > 2) flatListRef.current?.scrollToIndex({ animated: false, index: index - 2 });
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [isModalVisible]);
-
-  useEffect(() => {
     if (isModalVisible) {
       overlayOpacity.setValue(0);
       contentTranslateY.setValue(SCREEN_HEIGHT);
@@ -155,6 +167,32 @@ const Select: React.FC<SelectProps> = (props) => {
     const lower = searchText.toLowerCase();
     return options.filter((opt) => opt.label.toLowerCase().includes(lower));
   }, [options, searchText]);
+
+  const displayRows: DisplayRow[] = useMemo(() => buildDisplayRows(filteredOptions), [filteredOptions]);
+
+  const rowHeights: number[] = useMemo(
+    () => displayRows.map((row: DisplayRow) =>
+      row.kind === "header" ? GROUP_HEADER_HEIGHT : sizes.selectItemHeight
+    ),
+    [displayRows]
+  );
+
+  const rowOffsets: number[] = useMemo(() => {
+    const offsets: number[] = [];
+    let acc = 0;
+    rowHeights.forEach((h: number) => { offsets.push(acc); acc += h; });
+    return offsets;
+  }, [rowHeights]);
+
+  useEffect(() => {
+    if (!isModalVisible || !value || !flatListRef.current) return;
+    const timer = setTimeout(() => {
+      const selectedValue = multiple ? (Array.isArray(value) ? value[0] : value) : value;
+      const index = displayRows.findIndex((row) => row.kind === "option" && row.option.value === selectedValue);
+      if (index > 2) flatListRef.current?.scrollToIndex({ animated: false, index: index - 2 });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [isModalVisible]);
 
   const selectedOptions = useMemo((): SelectOption[] => {
     if (!value) return [];
@@ -225,14 +263,24 @@ const Select: React.FC<SelectProps> = (props) => {
   const hasError = touched && !!error;
   const hasValue = multiple ? Array.isArray(value) && value.length > 0 : !!value;
 
-  const renderOption = useCallback(
-    ({ item }: { item: SelectOption }) => {
-      const selected = isOptionSelected(item);
+  const renderRow = useCallback(
+    ({ item }: { item: DisplayRow }) => {
+      if (item.kind === "header") {
+        return (
+          <View style={styles.groupHeader}>
+            <View style={styles.groupHeaderAccent} />
+            <Text style={styles.groupHeaderText}>{item.label}</Text>
+          </View>
+        );
+      }
+
+      const option = item.option;
+      const selected = isOptionSelected(option);
       return (
         <TouchableOpacity
-          style={[styles.optionItem, selected && styles.optionItemSelected, item.disabled && styles.optionItemDisabled]}
-          onPress={() => handleSelect(item)}
-          disabled={item.disabled}
+          style={[styles.optionItem, selected && styles.optionItemSelected, option.disabled && styles.optionItemDisabled]}
+          onPress={() => handleSelect(option)}
+          disabled={option.disabled}
           activeOpacity={0.6}
         >
           {multiple && (
@@ -240,8 +288,8 @@ const Select: React.FC<SelectProps> = (props) => {
               {selected && <IconMaterial name="check" size={14} color={colors.white} />}
             </View>
           )}
-          <Text style={[styles.optionLabel, selected && styles.optionLabelSelected, item.disabled && styles.optionLabelDisabled]} numberOfLines={2}>
-            {item.label}
+          <Text style={[styles.optionLabel, selected && styles.optionLabelSelected, option.disabled && styles.optionLabelDisabled]} numberOfLines={2}>
+            {option.label}
           </Text>
           {!multiple && selected && <IconMaterial name="check" size={sizes.iconLg} color={colors.secondary} />}
         </TouchableOpacity>
@@ -322,16 +370,16 @@ const Select: React.FC<SelectProps> = (props) => {
 
             <FlatList
               ref={flatListRef}
-              data={filteredOptions}
-              keyExtractor={(item) => String(item.value)}
-              renderItem={renderOption}
+              data={displayRows}
+              keyExtractor={(item) => item.key}
+              renderItem={renderRow}
               style={styles.optionsList}
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="on-drag"
               windowSize={5}
               maxToRenderPerBatch={10}
               removeClippedSubviews={true}
-              getItemLayout={(_, index) => ({ length: sizes.selectItemHeight, offset: sizes.selectItemHeight * index, index })}
+              getItemLayout={(_, index) => ({ length: rowHeights[index], offset: rowOffsets[index], index })}
               onScrollToIndexFailed={() => {}}
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
@@ -418,6 +466,26 @@ const styles = StyleSheet.create({
   },
   searchInput: { flex: 1, fontSize: sizes.fontSize.input, color: colors.black, marginLeft: 8, paddingVertical: 0 },
   optionsList: { flexGrow: 0 },
+  groupHeader: {
+    height: GROUP_HEADER_HEIGHT,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingLeft: sizes.padding,
+  },
+  groupHeaderAccent: {
+    width: 3,
+    height: 14,
+    borderRadius: 2,
+    backgroundColor: colors.secondary,
+    marginRight: 8,
+  },
+  groupHeaderText: {
+    fontSize: sizes.fontSize.label,
+    fontWeight: "700",
+    color: colors.secondary,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
   optionItem: {
     flexDirection: "row",
     alignItems: "center",
