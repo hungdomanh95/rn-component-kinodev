@@ -1,8 +1,12 @@
 import { StyleSheet } from "react-native";
 import { colors, sizes } from "../../theme";
 
+// Fallback size used only for the very first render, before the "content" row
+// has reported its real measured width via onLayout (see FilePicker.tsx).
+// Exact sizing can't be computed from screenWidth alone because it depends on
+// however much padding/border the screens embedding this component add around it.
 const WIDTH_CONTAINER_MULTI = sizes.screenWidth - 6 * sizes.spacing;
-const SIZE_ITEM_MULTI = WIDTH_CONTAINER_MULTI / 3 - 1;
+const SIZE_ITEM_MULTI = (WIDTH_CONTAINER_MULTI - 2 * sizes.spacing) / 3;
 
 export const styles = StyleSheet.create({
   container: {

@@ -1,7 +1,8 @@
 import { MediaType, openPicker } from "@baronha/react-native-multiple-image-picker";
 import Icon from "assets/icons";
-import React, { Fragment, useCallback } from "react";
+import React, { Fragment, useCallback, useState } from "react";
 import {
+  LayoutChangeEvent,
   Platform,
   StyleProp,
   TouchableOpacity,
@@ -13,7 +14,7 @@ import { DocumentPickerOptions, pick, types } from "react-native-document-picker
 import FastImage from "react-native-fast-image";
 import * as RnImagePicker from "react-native-image-picker";
 import * as RnImgResize from "react-native-image-resizer";
-import { colors } from "../../theme";
+import { colors, sizes } from "../../theme";
 import { Row } from "../Row";
 import { Space } from "../Space";
 import { Text } from "../Typography";
@@ -57,6 +58,21 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
   } = props;
 
   const isDisabled = response.filter((item: any) => item.documentType === id).length >= limit;
+
+  // Measured off the outer container (styles.container), not the item row itself:
+  // the outer box's width is fixed by its parent chain's padding and never changes
+  // based on what's rendered inside, so this can't feed back into itself. The item
+  // row's own width, by contrast, shrinks/grows with its children - measuring that
+  // instead caused an infinite resize loop.
+  const [containerWidth, setContainerWidth] = useState<number>(0);
+  const itemSize = containerWidth
+    ? (containerWidth - 2 * sizes.spacing - 2 /* own borderWidth */ - 2 * sizes.spacing) / 3
+    : undefined;
+
+  const handleContainerLayout = (e: LayoutChangeEvent) => {
+    const width = e.nativeEvent.layout.width;
+    setContainerWidth((prev) => (prev !== width ? width : prev));
+  };
 
   const removeImage = useCallback(
     (key: string, idx?: number) => {
@@ -159,7 +175,7 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
   switch (type) {
     case "multi":
       return (
-        <View style={[styles.container, props.styleContainer]}>
+        <View style={[styles.container, props.styleContainer]} onLayout={handleContainerLayout}>
           <Row style={{ justifyContent: "space-between" }}>
             <Text style={{ fontWeight: "700", fontSize: 13, color: colors.primary }}>
               {title ?? "Upload"}
@@ -175,7 +191,7 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
                 {response
                   .filter((item: any) => item.documentType === id)
                   .map((item: any, idx: number) => (
-                    <View style={styles.itemUpload} key={idx}>
+                    <View style={[styles.itemUpload, itemSize ? { width: itemSize, height: itemSize } : null]} key={idx}>
                       <TouchableOpacity style={styles.buttonRemove} onPress={() => removeImage(item.documentType, idx)}>
                         <Icon name="x" color={colors.darkGray} size={15} />
                       </TouchableOpacity>
@@ -199,7 +215,7 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
                   ))}
               </>
             ) : (
-              <View style={styles.itemUpload}>
+              <View style={[styles.itemUpload, itemSize ? { width: itemSize, height: itemSize } : null]}>
                 <Icon name="image-outline" color={colors.darkGray} size={30} />
               </View>
             )}
