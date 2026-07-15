@@ -3,6 +3,23 @@ import React, { useEffect, useRef, useState } from "react";
 import { SelectOption } from "../Select/Select";
 import SelectField from "../Select/SelectField";
 
+/**
+ * Hợp đồng dữ liệu chuẩn hoá mà AddressFields mong đợi ở MỌI cấp (tỉnh/huyện/xã).
+ * Component này không tự gọi API nào — nó hoàn toàn "dumb"/data-driven, nên KHÔNG
+ * phụ thuộc field-name của bất kỳ backend cụ thể nào.
+ *
+ * Nếu API host trả về field tên khác (vd cash-loan-msales-app dùng
+ * `{cityId, cityName}` cho tỉnh, `{districtId, districtName}` cho huyện,
+ * `{wardZipcode, wardName}` cho xã — không có id riêng, id chính là zip code),
+ * host PHẢI tự map sang shape này ngay trong `loadProvinces/loadDistricts/loadWards`
+ * trước khi return, ví dụ:
+ * ```ts
+ * const loadProvinces = async () => {
+ *   const res = await AddressService.getProvinceList();
+ *   return res.data.map(item => ({ id: item.cityId, name: item.cityName }));
+ * };
+ * ```
+ */
 export type AddressItem = {
   id: number | string;
   name: string;
@@ -28,11 +45,14 @@ export interface AddressFieldsProps {
   disabled?: boolean;
   /**
    * Danh sách tỉnh/thành đã có sẵn (vd cache/Redux của app host) — nếu truyền,
-   * bỏ qua gọi loadProvinces khi list đã có dữ liệu.
+   * bỏ qua gọi loadProvinces khi list đã có dữ liệu. Phải đã chuẩn hoá theo AddressItem.
    */
   provinces?: AddressItem[];
+  /** Phải trả về mảng đã chuẩn hoá theo AddressItem — xem doc-comment của AddressItem ở trên. */
   loadProvinces: () => Promise<AddressItem[]>;
+  /** Phải trả về mảng đã chuẩn hoá theo AddressItem — xem doc-comment của AddressItem ở trên. */
   loadDistricts: (provinceId: string) => Promise<AddressItem[]>;
+  /** Phải trả về mảng đã chuẩn hoá theo AddressItem — xem doc-comment của AddressItem ở trên. */
   loadWards: (districtId: string) => Promise<AddressItem[]>;
 }
 
@@ -48,6 +68,9 @@ const toOptions = (list: AddressItem[]): SelectOption[] =>
 const seedOption = (id: any, name?: string): SelectOption[] =>
   id != null && name ? [{ value: id, label: name }] : [];
 
+// Lưu ý: AddressFields phụ thuộc Formik (useFormikContext bên dưới), giống mọi
+// *Field khác trong rn-component-kinodev. Dự án không dùng Formik sẽ cần viết
+// lại phần binding giá trị/onChange (component không có chế độ controlled value/onChange).
 const AddressFields: React.FC<AddressFieldsProps> = ({
   prefix,
   name,

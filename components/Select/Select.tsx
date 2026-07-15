@@ -72,7 +72,7 @@ export interface SelectProps {
 const Select: React.FC<SelectProps> = (props) => {
   const {
     label, isRequired, disabled, noError,
-    placeholder = "Chọn...", options = [],
+    placeholder = "Chọn...", options: optionsProp,
     searchable = false, searchPlaceholder = "Tìm kiếm...",
     multiple = false, showClearButton = false,
     modalTitle, style, labelStyle, inputStyle,
@@ -80,6 +80,12 @@ const Select: React.FC<SelectProps> = (props) => {
     loading = false, onOpen,
     value, onValueChange, onBlur, error, touched,
   } = props;
+
+  // `options = []` mặc định khi destructure chỉ bắt được `undefined`, không bắt `null`.
+  // Nhiều nơi truyền thẳng kết quả 1 hook/async config (vd useDataAppConfig) mà giá trị
+  // ban đầu là `null` trước khi load xong — nếu không chuẩn hoá ở đây, buildDisplayRows
+  // bên dưới sẽ crash ngay lần render đầu (options.forEach của null).
+  const options = optionsProp ?? [];
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
