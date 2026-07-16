@@ -1,5 +1,5 @@
 import { useField } from 'formik';
-import React from 'react';
+import React, { useCallback } from 'react';
 import Radio, { RadioProps } from './Radio';
 
 interface RadioFieldProps extends Omit<RadioProps, 'value' | 'onChange' | 'error' | 'touched'> {
@@ -10,14 +10,21 @@ interface RadioFieldProps extends Omit<RadioProps, 'value' | 'onChange' | 'error
 const RadioField: React.FC<RadioFieldProps> = ({ name, ...props }) => {
   const [, meta, helpers] = useField(name);
 
+  // Radio là React.memo — cần onChange ổn định (không tạo arrow function mới mỗi render)
+  // để memo thật sự có tác dụng khi field khác trong cùng Formik form thay đổi.
+  const handleChange = useCallback(
+    (val: string | number | boolean) => {
+      helpers.setValue(val);
+      helpers.setTouched(true, false);
+    },
+    [helpers.setValue, helpers.setTouched]
+  );
+
   return (
     <Radio
       {...props}
       value={meta.value}
-      onChange={(val) => {
-        helpers.setValue(val);
-        helpers.setTouched(true, false);
-      }}
+      onChange={handleChange}
       error={meta.error}
       touched={meta.touched}
     />

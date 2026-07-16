@@ -1,5 +1,5 @@
 import { useField } from "formik";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import Input, { InputProps } from "./Input";
 
 interface InputFieldProps extends Omit<InputProps, "value" | "onChangeText" | "onBlur" | "error" | "touched"> {
@@ -18,12 +18,18 @@ const InputField: React.FC<InputFieldProps> = ({ name, defaultValue, ...props })
     }
   }, []);
 
+  // Input là React.memo — cần onBlur ổn định (không tạo arrow function mới mỗi render)
+  // để memo thật sự có tác dụng khi field khác trong cùng Formik form thay đổi.
+  const handleBlur = useCallback(() => {
+    helpers.setTouched(true);
+  }, [helpers.setTouched]);
+
   return (
     <Input
       {...props}
       value={meta.value || ""}
       onChangeText={helpers.setValue}
-      onBlur={() => helpers.setTouched(true)}
+      onBlur={handleBlur}
       error={meta.error}
       touched={meta.touched}
     />

@@ -160,4 +160,4 @@ const styles = StyleSheet.create({
   errorText: { color: colors.red, fontSize: sizes.fontSize.error, marginTop: 4 },
 });
 
-export default DatePicker;
+export default React.memo(DatePicker);

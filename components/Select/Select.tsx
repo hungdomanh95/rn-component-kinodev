@@ -530,4 +530,4 @@ const styles = StyleSheet.create({
   doneButtonText: { fontSize: sizes.fontSize.title, fontWeight: "600", color: colors.white },
 });
 
-export default Select;
+export default React.memo(Select);

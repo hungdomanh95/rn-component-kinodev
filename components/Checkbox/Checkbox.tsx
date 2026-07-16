@@ -62,4 +62,4 @@ const styles = StyleSheet.create({
   errorText: { color: colors.red, fontSize: sizes.fontSize.error, marginTop: 4, marginLeft: sizes.checkboxSize + 10 },
 });
 
-export default Checkbox;
+export default React.memo(Checkbox);
