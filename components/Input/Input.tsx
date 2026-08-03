@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Animated,
   Easing,
+  InteractionManager,
   StyleProp,
   StyleSheet,
   Text,
@@ -63,8 +64,10 @@ const Input: React.FC<InputProps> = (props) => {
 
   useEffect(() => {
     if (autoFocus) {
-      const timer = requestAnimationFrame(() => { inputRef.current?.focus(); });
-      return () => cancelAnimationFrame(timer);
+      // Đợi transition chuyển màn xong mới focus, tránh keyboard-show animation
+      // chạy đè lên screen-push animation gây giật ở lần mount đầu tiên.
+      const task = InteractionManager.runAfterInteractions(() => { inputRef.current?.focus(); });
+      return () => task.cancel();
     }
   }, [autoFocus]);
 

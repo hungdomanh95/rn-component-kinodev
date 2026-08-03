@@ -380,8 +380,8 @@ const Select: React.FC<SelectProps> = (props) => {
               keyExtractor={(item) => item.key}
               renderItem={renderRow}
               style={styles.optionsList}
-              keyboardShouldPersistTaps="handled"
-              keyboardDismissMode="on-drag"
+              keyboardShouldPersistTaps="always"
+              keyboardDismissMode="none"
               windowSize={5}
               maxToRenderPerBatch={10}
               removeClippedSubviews={true}
