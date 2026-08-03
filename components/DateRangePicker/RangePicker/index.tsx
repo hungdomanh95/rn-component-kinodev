@@ -11,41 +11,45 @@ import { dateRange } from './dateRange';
 import MonthPicker from './Month';
 import * as S from './range.styled';
 import { Text } from '../../Typography';
+import { Space } from '../../Space';
 import Icon from '../../Icon/Icon';
 
-
+export type TypeRangeDate = { fromDate: dayjs.Dayjs | ""; toDate: dayjs.Dayjs | "" };
 dayjs.extend(customParseFormat)
 dayjs.extend(utc);
 dayjs.extend(weekOfYear);
 dayjs.extend(isoWeek);
 
 type RangePickerProps = {
+  defaultValue?: TypeRangeDate
   onChange:(value: any) => void
   picker?:"date" | "week" | "month" | "year"
 };
 
 const TAB_FILTER = [
   {
-    id: 1,
-    title: "Tuần",
+    id: "TODAY",
+    title: "Ngày hôm nay",
   },
   {
-    id: 2,
-    title: "Tháng",
+    id: "THIS_WEEK",
+    title: "Tuần này",
   },
   {
-    id: 3,
-    title: "Năm",
+    id: "THIS_MONTH",
+    title: "Tháng này",
+  },
+  {
+    id: "THIS_YEAR",
+    title: "Năm này",
   },
 ];
 
-
-
 const RangePicker:React.FC<RangePickerProps> = (props) => {
 
-  const { onChange, picker = 'date' } = props;
+  const { onChange, picker = 'date', defaultValue } = props;
 
-  const [tab, setTab] = useState(TAB_FILTER[0]);
+  const [tab, setTab] = useState({id:'', title: ''});
   const [pickFrom, setPickFrom] = useState<boolean>(false)
   const [pickTo, setPickTo] = useState<boolean>(false)
   const [fromDate, setFromDate] = useState<string>("");
@@ -55,30 +59,38 @@ const RangePicker:React.FC<RangePickerProps> = (props) => {
   const [toMonth, setToMonth] = useState<string>("");
 
   useEffect(() => {
-    if (picker === 'date') {
-      updateDateRange(dateRange.getWeekRange());
-      return;
-    }else if(picker === 'month'){
-      updateDateRange(dateRange.getYearRange());
-      return;
+    if(defaultValue){
+      setFromDate(String(defaultValue.fromDate))
+      setToDate(String(defaultValue.toDate))
+    }else{
+      if (picker === 'date') {
+        updateDateRange(dateRange.getWeekRange());
+        return;
+      }else if(picker === 'month'){
+        updateDateRange(dateRange.getYearRange());
+        return;
+      }
     }
-  }, []);
+  }, [defaultValue]);
 
-  const handleTab = (item: { id: number; title: string }) => {
+  const handleTab = (item: { id: string; title: string }) => {
     if (item.id === tab.id) return;
     setTab(item);
     switch (item.id) {
-        case 1:
-            updateDateRange(dateRange.getWeekRange());
-            break;
-        case 2:
-            updateDateRange(dateRange.getMonthRange());
-            break;
-        case 3:
-            updateDateRange(dateRange.getYearRange());
-            break;
-        default:
-            console.warn('Unknown tab id:', item.id);
+      case "TODAY":
+        updateDateRange(dateRange.getTodayRange());
+        break;
+      case "THIS_WEEK":
+          updateDateRange(dateRange.getWeekRange());
+          break;
+      case "THIS_MONTH":
+          updateDateRange(dateRange.getMonthRange());
+          break;
+      case "THIS_YEAR":
+          updateDateRange(dateRange.getYearRange());
+          break;
+      default:
+          console.warn('Unknown tab id:', item.id);
     }
   };
 
@@ -90,7 +102,6 @@ const RangePicker:React.FC<RangePickerProps> = (props) => {
       setFromMonth(range.start.format('M-YYYY'));
       setToMonth(range.end.format('M-YYYY'));
     }
-    onChange({fromDate:range.start, toDate:range.end})
   };
 
   const handlePickFrom = () => {
@@ -122,7 +133,6 @@ const RangePicker:React.FC<RangePickerProps> = (props) => {
   };
 
   const handleMonthPress = (value:string) => {
-    console.log('value: handleMonthPress', value);
     if(pickFrom){
       setFromMonth(value)
       setPickTo(true)
@@ -146,7 +156,7 @@ const RangePicker:React.FC<RangePickerProps> = (props) => {
       })
     }
   }, [fromDate, toDate, pickFrom, pickTo])
-  // dayjs(fromMonth, 'M/YYYY').startOf('month').valueOf()
+
   const renderFrom = () => {
     if(picker === 'date'){
       return <Text>{fromDate ? dayjs(fromDate).format('DD-MM-YYYY') : "--/--/----"}</Text>
@@ -179,8 +189,31 @@ const RangePicker:React.FC<RangePickerProps> = (props) => {
 
   return (
     <SafeAreaView>
+      <S.ContainerDate>
+        <S.DatePicker>
+          <Text>Từ ngày</Text>
+          <S.Picker active={pickFrom} onPress={handlePickFrom}>
+            <Icon name="calendar" />
+            {renderFrom()}
+            <S.ButtonRemove onPress={removeFrom} >
+              <Icon name="x" color={colors.white} size={12} />
+            </S.ButtonRemove>
+          </S.Picker>
+        </S.DatePicker>
+        <S.DatePicker>
+          <Text>Đến ngày</Text>
+          <S.Picker active={pickTo} onPress={handlePickTo}>
+            <Icon name="calendar" />
+            {renderTo()}
+            <S.ButtonRemove onPress={removeTo} >
+              <Icon name="x" color={colors.white} size={12} />
+            </S.ButtonRemove>
+          </S.Picker>
+        </S.DatePicker>
+      </S.ContainerDate>
+      <Space size='middle' />
       {picker === 'date' &&
-        <S.ContainerTab>
+        <S.ContainerTab horizontal showsHorizontalScrollIndicator={false}>
           {TAB_FILTER.map((item, idx) => (
             <S.Tab
               active={tab.id === item.id}
@@ -194,28 +227,6 @@ const RangePicker:React.FC<RangePickerProps> = (props) => {
           ))}
         </S.ContainerTab>
       }
-      <S.ContainerDate>
-        <S.DatePicker>
-          <S.Picker active={pickFrom} onPress={handlePickFrom}>
-            <Icon name="calendar" />
-            {renderFrom()}
-            {/* <Text>{fromDate ? dayjs(fromDate).format('DD-MM-YYYY') : "----/--/--"}</Text> */}
-            <S.ButtonRemove onPress={removeFrom} >
-              <Icon name="x" color={colors.white} size={12} />
-            </S.ButtonRemove>
-          </S.Picker>
-        </S.DatePicker>
-        <S.DatePicker>
-          <S.Picker active={pickTo} onPress={handlePickTo}>
-            <Icon name="calendar" />
-            {renderTo()}
-            {/* <Text>{toDate ? dayjs(toDate).format('DD-MM-YYYY') : "----/--/--"}</Text> */}
-            <S.ButtonRemove onPress={removeTo} >
-              <Icon name="x" color={colors.white} size={12} />
-            </S.ButtonRemove>
-          </S.Picker>
-        </S.DatePicker>
-      </S.ContainerDate>
 
       {(pickFrom || pickTo) &&
         <View style={{marginTop:sizes.spacing, borderRadius:8, overflow: 'hidden',}}>

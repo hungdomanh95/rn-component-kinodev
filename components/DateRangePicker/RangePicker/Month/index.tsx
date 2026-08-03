@@ -3,7 +3,6 @@ import React from "react";
 import styled from "styled-components/native";
 import * as S from "./month.styled";
 import Icon from "../../../Icon/Icon";
-import { Row } from "../../../Row";
 import { dateRange } from "../dateRange";
 import dayjs from "dayjs";
 

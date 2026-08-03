@@ -52,20 +52,21 @@ Every form input has two variants:
 | `Input` / `InputField` | `Input/` | Supports money formatting, number-only, icons, show/hide password, animated label |
 | `Select` / `SelectField` | `Select/` | Modal dropdown, optional search, multi-select, keyboard-aware positioning |
 | `DatePicker` / `DatePickerField` | `DatePicker/` | Modal date picker |
+| `RangePicker` | `DateRangePicker/` | From/to date or month range picker, quick-filter tabs (Hôm nay/Tuần này/Tháng này/Năm này), `defaultValue` for pre-fill |
 | `Checkbox` / `CheckboxField` | `Checkbox/` | Single checkbox with label/description |
 | `Toggle` / `ToggleField` | `Toggle/` | iOS-style switch |
 | `Radio` / `RadioField` | `Radio/` | Radio group, supports row/column layout |
-| `Address` | `Address/AddressFields.tsx` | Formik-only. Cascading Province/District/Ward dropdowns. Data-driven via `provinces`/`loadProvinces`/`loadDistricts`/`loadWards` props — host app supplies its own data source |
 | `Button` | `Button/` | Variants: primary (filled), outline, text |
 | `Card` | `Card/` | Container with optional `onPress` |
 | `Modal` / `GlobalModal` | `Modal/` | Modal with overlay. `GlobalModal` enables imperative usage via `ModalManager` |
 | `Body` | `Body/` | Full-height wrapper, dismisses keyboard on touch |
-| `ScrollBody` | `ScrollBody/` | Scrollable body wrapper |
+| `ScrollBody` | `ScrollBody/` | Scrollable body wrapper, supports `refreshControl`, `scrollRef`, `style`, `contentContainerStyle` |
 | `Footer` | `Footer/` | Bottom container |
 | `Row` | `Row/` | Horizontal layout utility |
 | `Space` | `Space/` | Spacing utility |
 | `Typography` | `Typography/` | `Title`, `Label`, `Text` variants |
 | `NoteBox` | `NoteBox/` | Info box with icon and title |
+| `Tooltip` | `Tooltip/` | Tap `children` to show a positioned note bubble (arrow + auto-flip above/below) via `tooltipText` |
 
 ---
 
@@ -75,14 +76,6 @@ Every form input has two variants:
 2. Create `components/NewComponent/index.ts` re-exporting both
 3. Add `export * from './components/NewComponent';` to `index.ts`
 4. Use `colors` and `sizes` from `../../theme` — never hardcode
-
-## Address Component Details
-
-`AddressFields` is data-driven and has no app-internal dependencies:
-- Host app must pass `loadProvinces`, `loadDistricts(provinceId)`, `loadWards(districtId)` callbacks; optionally a preloaded `provinces` list to skip the initial fetch
-- Uses module-level cache to avoid redundant API calls across re-mounts
-- Supports two field-naming modes: flat (`perProvinceId`) or nested (`address.provinceId`)
-- Accepts `initialProvinceName`, `initialDistrictName`, `initialWardName` for pre-fill
 
 ## Known Issues & Fixes
 
@@ -96,7 +89,15 @@ Every form input has two variants:
 
 **Lưu ý:** Không dùng `KeyboardAvoidingView` — đã thử và conflict với custom scroll logic của `ScrollBody`.
 
-**Bug liên quan — scroll về vị trí cũ bị lệch khi keyboard ẩn:** Nếu `setKeyboardPadding(0)` được gọi ngay lập tức trong `keyboardWillHide`, iOS UIScrollView sẽ clamp scroll offset về `max_scroll = new_content_height - visible_height` trong khi scroll animation về vị trí gốc đang chạy → scroll dừng sai chỗ. Fix: dùng `setTimeout(350ms)` để xóa padding sau khi animation hoàn thành. Cancel timer này trong `keyboardWillShow` để tránh race condition khi user focus field mới liên tiếp.
+**Bug liên quan — clamp scroll bị lệch khi keyboard ẩn:** Nếu `setKeyboardPadding(0)` được gọi ngay lập tức trong `keyboardWillHide`, iOS UIScrollView sẽ clamp scroll offset về `max_scroll = new_content_height - visible_height` trong khi scroll animation đang chạy → scroll dừng sai chỗ. Fix: dùng `setTimeout(350ms)` để xóa padding sau khi animation hoàn thành. Cancel timer này trong `keyboardWillShow` để tránh race condition khi user focus field mới liên tiếp.
+
+### `ScrollBody` khi ẩn bàn phím — pin field vừa nhập lên mép trên (không restore vị trí cũ)
+
+**Bối cảnh:** Bản đầu tiên khi `keyboardWillHide` sẽ cuộn về đúng offset trước lúc focus. Với field nằm ở cuối content thì ổn, nhưng với field ở giữa form thì tệ — cuộn về vị trí cũ nghĩa là field vừa nhập (và các field kế tiếp) bị che lại, user phải tự cuộn xuống lần nữa để tiếp tục điền.
+
+**Fix hiện tại:** Khi `keyboardWillShow`, lưu lại content-offset (không phải window-offset, vì window-offset đổi theo mỗi lần cuộn) của field đang focus vào `focusedFieldContentYRef`. Khi `keyboardWillHide`, thay vì restore, cuộn tới vị trí `focusedFieldContentYRef - TOP_INSET` — tức ghim field vừa nhập lên sát mép trên, lộ ra nội dung phía sau nó. Kết quả tự nhiên đúng cho cả 2 trường hợp: field giữa form (lộ field kế tiếp, khỏi cuộn tay) lẫn field cuối cùng (lộ nút submit bên dưới).
+
+**Bug liên quan — clamp tính sai vì còn tính cả phần đệm bàn phím:** Giới hạn `maxScroll` phải dùng chiều cao content THẬT (không tính `paddingBottom` bù bàn phím vừa thêm ở `keyboardWillShow`), vì phần đệm đó chỉ mất đi sau 350ms nữa (xem bug phía trên). Nếu tính `maxScroll` dựa trên content đang còn đệm (to hơn thật), có thể cuộn tới vị trí mà 350ms sau khi đệm biến mất sẽ bị ScrollView tự động kẹp lại về giới hạn mới → tạo thêm 1 cú giật ngay sau cú cuộn chủ đích, nhìn như "cuộn 2 nhịp". Fix: trừ `keyboardPaddingRef.current` (giá trị đệm hiện tại, đọc qua ref chứ không phải state để tránh stale closure trong listener) ra khỏi `contentHeightRef.current` trước khi tính `maxScroll`.
 
 ---
 

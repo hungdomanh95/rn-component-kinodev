@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    gap: sizes.spacing,
     marginBottom: sizes.padding * 2,
     marginTop: sizes.padding * 2,
     paddingHorizontal: sizes.padding,

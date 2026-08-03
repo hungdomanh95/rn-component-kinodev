@@ -48,9 +48,19 @@ const getCurrentTime = () => {
   }
 }
 
+const getTodayRange = () => {
+  const startOfToday = dayjs().utc().startOf("day");
+  const endOfToday = dayjs().utc().endOf("day");
+  return {
+    start: startOfToday,
+    end: endOfToday,
+  };
+};
+
 export const dateRange = {
   getWeekRange,
   getMonthRange,
   getYearRange,
-  getCurrentTime
+  getCurrentTime,
+  getTodayRange
 }
