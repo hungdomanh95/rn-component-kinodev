@@ -7,7 +7,7 @@ interface DatePickerFieldProps extends Omit<DatePickerProps, 'value' | 'onChange
   name: string;
 }
 
-const DatePickerField: React.FC<DatePickerFieldProps> = ({ name, ...props }) => {
+const DatePickerField: React.FC<DatePickerFieldProps> = ({ name, testID, ...props }) => {
   const [, meta, helpers] = useField(name);
 
   // DatePicker là React.memo — `new Date(...)` tạo object mới mỗi render dù meta.value
@@ -26,6 +26,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({ name, ...props }) => 
   return (
     <DatePicker
       {...props}
+      testID={testID ?? name}
       value={value}
       onChange={handleChange}
       error={meta.error}

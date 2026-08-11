@@ -67,6 +67,7 @@ export interface SelectProps {
   onBlur?: () => void;
   error?: string;
   touched?: boolean;
+  testID?: string;
 }
 
 const Select: React.FC<SelectProps> = (props) => {
@@ -78,7 +79,7 @@ const Select: React.FC<SelectProps> = (props) => {
     modalTitle, style, labelStyle, inputStyle,
     leftIcon, emptyText = "Không có dữ liệu",
     loading = false, onOpen,
-    value, onValueChange, onBlur, error, touched,
+    value, onValueChange, onBlur, error, touched, testID,
   } = props;
 
   // `options = []` mặc định khi destructure chỉ bắt được `undefined`, không bắt `null`.
@@ -313,6 +314,7 @@ const Select: React.FC<SelectProps> = (props) => {
       )}
 
       <TouchableOpacity
+        testID={testID}
         style={[styles.selectBox, { borderColor: isFocused ? colors.secondary : colors.darkGray }, hasError && styles.selectBoxError]}
         onPress={openModal}
         disabled={disabled}

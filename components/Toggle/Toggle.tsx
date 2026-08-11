@@ -14,9 +14,10 @@ export interface ToggleProps {
   description?: string;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
-const Toggle: React.FC<ToggleProps> = ({ value = false, onChange, label, description, disabled, style }) => {
+const Toggle: React.FC<ToggleProps> = ({ value = false, onChange, label, description, disabled, style, testID }) => {
   const anim = useRef(new Animated.Value(value ? 1 : 0)).current;
 
   useEffect(() => {
@@ -43,6 +44,7 @@ const Toggle: React.FC<ToggleProps> = ({ value = false, onChange, label, descrip
 
   return (
     <TouchableOpacity
+      testID={testID}
       style={[styles.container, style, disabled && styles.disabled]}
       activeOpacity={0.8}
       onPress={handlePress}

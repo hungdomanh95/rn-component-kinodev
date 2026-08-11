@@ -7,7 +7,7 @@ interface SelectFieldProps extends Omit<SelectProps, "value" | "onBlur" | "error
   name: string;
 }
 
-const SelectField: React.FC<SelectFieldProps> = ({ name, onValueChange, ...props }) => {
+const SelectField: React.FC<SelectFieldProps> = ({ name, onValueChange, testID, ...props }) => {
   const [, meta, helpers] = useField(name);
 
   // Select là React.memo — cần onValueChange/onBlur ổn định (không tạo arrow function mới
@@ -27,6 +27,7 @@ const SelectField: React.FC<SelectFieldProps> = ({ name, onValueChange, ...props
   return (
     <Select
       {...props}
+      testID={testID ?? name}
       value={meta.value}
       onValueChange={handleValueChange}
       onBlur={handleBlur}

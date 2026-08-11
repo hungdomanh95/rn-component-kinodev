@@ -22,13 +22,14 @@ export interface RadioProps {
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
   accentColor?: string;
+  testID?: string;
 }
 
-const Radio: React.FC<RadioProps> = ({ data, value, onChange, label, isRequired, direction = 'column', disabled, noError, error, touched, style, labelStyle, accentColor }) => {
+const Radio: React.FC<RadioProps> = ({ data, value, onChange, label, isRequired, direction = 'column', disabled, noError, error, touched, style, labelStyle, accentColor, testID }) => {
   const hasError = touched && !!error;
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, style]} testID={testID}>
       {label && (
         <Text style={[styles.label, labelStyle]}>
           {label}{isRequired && <Text style={styles.required}> *</Text>}
@@ -41,6 +42,7 @@ const Radio: React.FC<RadioProps> = ({ data, value, onChange, label, isRequired,
           return (
             <TouchableOpacity
               key={String(option.value)}
+              testID={testID ? `${testID}-${String(option.value)}` : undefined}
               style={[styles.option, direction === 'row' && styles.optionRow, isDisabled && styles.disabled]}
               onPress={() => !isDisabled && onChange?.(option.value)}
               activeOpacity={0.7}

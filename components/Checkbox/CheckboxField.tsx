@@ -7,7 +7,7 @@ interface CheckboxFieldProps extends Omit<CheckboxProps, 'value' | 'onChange' | 
   name: string;
 }
 
-const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, ...props }) => {
+const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, testID, ...props }) => {
   const [, meta, helpers] = useField(name);
 
   // Checkbox là React.memo — cần onChange ổn định (không tạo arrow function mới mỗi render)
@@ -23,6 +23,7 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, ...props }) => {
   return (
     <Checkbox
       {...props}
+      testID={testID ?? name}
       value={!!meta.value}
       onChange={handleChange}
       error={meta.error}

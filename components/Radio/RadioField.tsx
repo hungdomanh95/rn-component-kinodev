@@ -7,7 +7,7 @@ interface RadioFieldProps extends Omit<RadioProps, 'value' | 'onChange' | 'error
   name: string;
 }
 
-const RadioField: React.FC<RadioFieldProps> = ({ name, ...props }) => {
+const RadioField: React.FC<RadioFieldProps> = ({ name, testID, ...props }) => {
   const [, meta, helpers] = useField(name);
 
   // Radio là React.memo — cần onChange ổn định (không tạo arrow function mới mỗi render)
@@ -23,6 +23,7 @@ const RadioField: React.FC<RadioFieldProps> = ({ name, ...props }) => {
   return (
     <Radio
       {...props}
+      testID={testID ?? name}
       value={meta.value}
       onChange={handleChange}
       error={meta.error}

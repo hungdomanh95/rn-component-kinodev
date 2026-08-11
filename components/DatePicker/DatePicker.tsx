@@ -35,6 +35,7 @@ export interface DatePickerProps {
   confirmText?: string;
   cancelText?: string;
   locale?: string;
+  testID?: string;
 }
 
 const DatePicker: React.FC<DatePickerProps> = (props) => {
@@ -42,7 +43,7 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
     label, isRequired, disabled, noError, placeholder, mode = 'date',
     value, onChange, minimumDate, maximumDate, showClearButton,
     style, labelStyle, error, touched, title,
-    confirmText = 'Xác nhận', cancelText = 'Hủy', locale = 'vi',
+    confirmText = 'Xác nhận', cancelText = 'Hủy', locale = 'vi', testID,
   } = props;
 
   const [open, setOpen] = useState(false);
@@ -82,6 +83,7 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
       )}
 
       <TouchableOpacity
+        testID={testID}
         style={[
           styles.field,
           { borderColor: isFocused ? colors.secondary : colors.darkGray },

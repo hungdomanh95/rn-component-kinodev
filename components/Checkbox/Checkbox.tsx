@@ -13,14 +13,16 @@ export interface CheckboxProps {
   error?: string;
   touched?: boolean;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ value = false, onChange, label, description, disabled, noError, error, touched, style }) => {
+const Checkbox: React.FC<CheckboxProps> = ({ value = false, onChange, label, description, disabled, noError, error, touched, style, testID }) => {
   const hasError = touched && !!error;
 
   return (
     <View style={[styles.container, style]}>
       <TouchableOpacity
+        testID={testID}
         style={[styles.row, disabled && styles.disabled]}
         onPress={() => !disabled && onChange?.(!value)}
         activeOpacity={0.7}
