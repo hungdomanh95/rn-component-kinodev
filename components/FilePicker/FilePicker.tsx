@@ -34,6 +34,13 @@ export type FilePickerProps = {
   response?: RnImgResize.Response | undefined | any;
   setResponse?: (value: ResponsePickerType, id?: string) => void;
   removeImage?: (key: string, idx: number) => void;
+  /**
+   * Optional per-item guard controlling whether the remove ("x") button is shown.
+   * Undefined (default) preserves old behavior: every item is removable.
+   * Return `false` for an item to hide its remove button (e.g. a file the
+   * system generated that the user must not be able to delete).
+   */
+  canRemoveItem?: (item: any) => boolean;
   required?: boolean;
   id?: string;
   limit?: number;
@@ -55,6 +62,7 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
     type = "multi",
     setLoading,
     removeLoading,
+    canRemoveItem,
   } = props;
 
   const isDisabled = response.filter((item: any) => item.documentType === id).length >= limit;
@@ -192,9 +200,11 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
                   .filter((item: any) => item.documentType === id)
                   .map((item: any, idx: number) => (
                     <View style={[styles.itemUpload, itemSize ? { width: itemSize, height: itemSize } : null]} key={idx}>
-                      <TouchableOpacity style={styles.buttonRemove} onPress={() => removeImage(item.documentType, idx)}>
-                        <Icon name="x" color={colors.darkGray} size={15} />
-                      </TouchableOpacity>
+                      {(!canRemoveItem || canRemoveItem(item)) && (
+                        <TouchableOpacity style={styles.buttonRemove} onPress={() => removeImage(item.documentType, idx)}>
+                          <Icon name="x" color={colors.darkGray} size={15} />
+                        </TouchableOpacity>
+                      )}
                       <TouchableWithoutFeedback
                         onPress={() => handleOpenFile(item?.path?.includes("http") ? "link" : "local", item?.path)}
                       >
@@ -239,9 +249,11 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
                   .filter((item: any) => item.documentType === id)
                   .map((item: any, idx: number) => (
                     <Fragment key={idx}>
-                      <TouchableOpacity style={styles.buttonRemove} onPress={() => removeImage(item.documentType, 0)}>
-                        <Icon name="x" color={colors.darkGray} size={15} />
-                      </TouchableOpacity>
+                      {(!canRemoveItem || canRemoveItem(item)) && (
+                        <TouchableOpacity style={styles.buttonRemove} onPress={() => removeImage(item.documentType, 0)}>
+                          <Icon name="x" color={colors.darkGray} size={15} />
+                        </TouchableOpacity>
+                      )}
                       <TouchableWithoutFeedback
                         onPress={() => handleOpenFile(item?.path?.includes("http") ? "link" : "local", item?.path)}
                       >
