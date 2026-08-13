@@ -99,11 +99,6 @@ const Select: React.FC<SelectProps> = (props) => {
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const contentTranslateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const keyboardTranslateY = useRef(new Animated.Value(0)).current;
-  // Fallback khi Animated.parallel(...).start(callback) không được gọi (đã verify thật: mở 1 Select
-  // khác NGAY khi Select này đang chạy animation đóng có thể khiến callback không bao giờ chạy,
-  // modal kẹt lại vĩnh viễn dù data phía dưới vẫn lưu đúng — xem closeModal bên dưới).
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hasClosedRef = useRef(true);
 
   useEffect(() => {
     isModalVisibleRef.current = isModalVisible;
@@ -224,13 +219,6 @@ const Select: React.FC<SelectProps> = (props) => {
 
   const openModal = useCallback(() => {
     if (disabled) return;
-    hasClosedRef.current = false;
-    // Huỷ fallback timer còn sót từ lần đóng trước (nếu mở lại trong lúc timer đó vẫn đang chờ) —
-    // không huỷ sẽ khiến timer cũ tự đóng nhầm modal vừa mở lại sau khi nó bắn.
-    if (closeTimerRef.current) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
     Keyboard.dismiss();
     setIsFocused(true);
     setIsModalVisible(true);
@@ -241,37 +229,11 @@ const Select: React.FC<SelectProps> = (props) => {
   const closeModal = useCallback(() => {
     Keyboard.dismiss();
     keyboardTranslateY.setValue(0);
-    if (closeTimerRef.current) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
-
-    const finishClose = () => {
-      if (hasClosedRef.current) return;
-      hasClosedRef.current = true;
-      if (closeTimerRef.current) {
-        clearTimeout(closeTimerRef.current);
-        closeTimerRef.current = null;
-      }
-      setIsModalVisible(false);
-      setIsFocused(false);
-      onBlur?.();
-    };
-
     Animated.parallel([
       Animated.timing(overlayOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
       Animated.timing(contentTranslateY, { toValue: SCREEN_HEIGHT, duration: 200, easing: Easing.in(Easing.quad), useNativeDriver: true }),
-    ]).start(finishClose);
-
-    // An toàn: nếu callback trên không chạy (animation bị interrupt bởi 1 Select khác mở lên
-    // ngay lập tức), ép đóng sau khi animation lẽ ra đã xong — chờ lâu hơn duration thật (200ms)
-    // để không cắt animation bình thường giữa chừng.
-    closeTimerRef.current = setTimeout(finishClose, 300);
+    ]).start(() => { setIsModalVisible(false); setIsFocused(false); onBlur?.(); });
   }, [onBlur]);
-
-  useEffect(() => () => {
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-  }, []);
 
   const handleOverlayPress = useCallback(() => {
     if (isKeyboardVisibleRef.current) Keyboard.dismiss();
@@ -390,11 +352,7 @@ const Select: React.FC<SelectProps> = (props) => {
           ]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{modalTitle || label || "Chọn"}</Text>
-              <TouchableOpacity
-                testID={testID ? `${testID}-close` : undefined}
-                onPress={closeModal}
-                style={styles.closeButton}
-              >
+              <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
                 <IconMaterial name="close" size={sizes.iconLg} color={colors.blackGray} />
               </TouchableOpacity>
             </View>
