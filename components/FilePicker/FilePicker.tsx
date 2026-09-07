@@ -60,12 +60,6 @@ export type FilePickerProps = {
    * a host app attach status UI without it floating outside the card.
    */
   statusBadge?: React.ReactNode;
-  /**
-   * Optional content rendered at the very end, after the picker buttons,
-   * still inside the component's own bordered container (e.g. a "download
-   * template" link for a system-generated file group). "multi" type only.
-   */
-  footer?: React.ReactNode;
 };
 
 const FilePicker: React.FC<FilePickerProps> = (props) => {
@@ -82,7 +76,6 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
     removeLoading,
     canRemoveItem,
     statusBadge,
-    footer,
   } = props;
 
   const currentCount = response.filter((item: any) => item.documentType === id).length;
@@ -260,7 +253,6 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
             )}
           </View>
           <ButtonContainer typePicker={typePicker} disabled={isDisabled} handlePicker={handlePicker} />
-          {footer}
         </View>
       );
 
