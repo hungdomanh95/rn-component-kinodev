@@ -26,6 +26,12 @@ import { styles } from "./style";
 
 export type { ResponsePickerType };
 
+// resizeImage's maxWidth/maxHeight are a bounding box, not a forced size —
+// react-native-image-resizer keeps aspect ratio and never upscales, so
+// capping both at this value shrinks large camera-roll photos (often
+// 3000-4000px) while leaving already-small images untouched.
+const MAX_UPLOAD_DIMENSION = 1600;
+
 export type ButtonType = "multi" | "single";
 
 export type FilePickerProps = {
@@ -48,6 +54,12 @@ export type FilePickerProps = {
   typePicker?: "camera" | "images" | "files" | "library";
   setLoading?: () => void;
   removeLoading?: () => void;
+  /**
+   * Optional content rendered right after the title/count row, inside the
+   * component's own bordered container (e.g. an upload-status badge). Lets
+   * a host app attach status UI without it floating outside the card.
+   */
+  statusBadge?: React.ReactNode;
 };
 
 const FilePicker: React.FC<FilePickerProps> = (props) => {
@@ -63,9 +75,12 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
     setLoading,
     removeLoading,
     canRemoveItem,
+    statusBadge,
   } = props;
 
-  const isDisabled = response.filter((item: any) => item.documentType === id).length >= limit;
+  const currentCount = response.filter((item: any) => item.documentType === id).length;
+  const remainingSlots = Math.max(0, limit - currentCount);
+  const isDisabled = currentCount >= limit;
 
   // Measured off the outer container (styles.container), not the item row itself:
   // the outer box's width is fixed by its parent chain's padding and never changes
@@ -118,12 +133,12 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
     try {
       const responsePick = await openPicker({
         mediaType: "image" as MediaType,
-        maxSelectedAssets: type === "single" ? 1 : limit,
+        maxSelectedAssets: type === "single" ? 1 : remainingSlots,
       });
 
       const resizedImages = await Promise.all(
         responsePick.map(async (image: any) => {
-          return resizeImage({ path: image.path, maxWidth: image.width, maxHeight: image.height });
+          return resizeImage({ path: image.path, maxWidth: MAX_UPLOAD_DIMENSION, maxHeight: MAX_UPLOAD_DIMENSION });
         })
       );
       const validImages = resizedImages.filter(Boolean);
@@ -146,7 +161,11 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
         copyTo: "documentDirectory",
       };
       const responsePick = await pick(config);
-      const payload = convertData(responsePick, String(id));
+      // react-native-document-picker's pick() has no max-selection option
+      // (unlike openPicker's maxSelectedAssets for images), so cap the
+      // result to the remaining slots after the fact instead.
+      const limitedPick = type === "single" ? responsePick.slice(0, 1) : responsePick.slice(0, remainingSlots);
+      const payload = convertData(limitedPick, String(id));
       setResponse?.([...response, ...payload]);
     } catch (error) {
       console.log("Error: PDF picker", error);
@@ -166,8 +185,8 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
 
       const imgResize = await resizeImage({
         path: resultCamera.assets[0].uri,
-        maxWidth: Number(resultCamera.assets[0].width),
-        maxHeight: Number(resultCamera.assets[0].height),
+        maxWidth: MAX_UPLOAD_DIMENSION,
+        maxHeight: MAX_UPLOAD_DIMENSION,
       });
       if (!imgResize) return;
 
@@ -184,14 +203,17 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
     case "multi":
       return (
         <View style={[styles.container, props.styleContainer]} onLayout={handleContainerLayout}>
-          <Row style={{ justifyContent: "space-between" }}>
-            <Text style={{ fontWeight: "700", fontSize: 13, color: colors.primary }}>
-              {title ?? "Upload"}
-              {required && <Text style={{ color: colors.red }}> *</Text>}
-            </Text>
-            <Text style={styles.textCount}>
-              {`( ${response.filter((item: any) => item.documentType === id)?.length} / ${limit} )`}
-            </Text>
+          <Row style={{ justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
+            <Row style={{ alignItems: "center", flexShrink: 1, flexWrap: "wrap" }}>
+              <Text style={{ fontWeight: "700", fontSize: 13, color: colors.primary }}>
+                {title ?? "Upload"}
+                {required && <Text style={{ color: colors.red }}> *</Text>}
+              </Text>
+              <Text style={styles.textCount}>
+                {` ( ${response.filter((item: any) => item.documentType === id)?.length} / ${limit} )`}
+              </Text>
+            </Row>
+            {statusBadge}
           </Row>
           <View style={styles.content}>
             {response.filter((item: any) => item.documentType === id)?.length > 0 ? (
