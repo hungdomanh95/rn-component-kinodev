@@ -47,8 +47,8 @@ const Radio: React.FC<RadioProps> = ({ data, value, onChange, label, isRequired,
               onPress={() => !isDisabled && onChange?.(option.value)}
               activeOpacity={0.7}
             >
-              <View style={[styles.radio, isSelected && (accentColor ? { borderColor: accentColor } : styles.radioSelected), hasError && styles.radioError]}>
-                {isSelected && <View style={[styles.radioDot, accentColor ? { backgroundColor: accentColor } : undefined]} />}
+              <View style={[styles.radio, isSelected && (hasError ? styles.radioError : (accentColor ? { borderColor: accentColor } : styles.radioSelected))]}>
+                {isSelected && <View style={[styles.radioDot, hasError ? styles.radioDotError : (accentColor ? { backgroundColor: accentColor } : undefined)]} />}
               </View>
               <Text style={[styles.optionLabel, isDisabled && styles.optionLabelDisabled]}>{option.label}</Text>
             </TouchableOpacity>
@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     borderRadius: sizes.radioSize / 4,
     backgroundColor: colors.secondary,
   },
+  radioDotError: { backgroundColor: colors.red },
   optionLabel: { fontSize: sizes.fontSize.input, color: colors.blackGray, marginLeft: 10 },
   optionLabelDisabled: { color: colors.gray },
   errorText: { color: colors.red, fontSize: sizes.fontSize.error, marginTop: 4 },
