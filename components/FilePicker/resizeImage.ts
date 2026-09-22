@@ -1,4 +1,4 @@
-import ImageResizer from "react-native-image-resizer";
+import ImageResizer from "@bam.tech/react-native-image-resizer";
 
 type ResizeImageProps = {
   path: string;
@@ -19,7 +19,9 @@ export const resizeImage = async (props: ResizeImageProps) => {
       quality ?? 80,
       0,
       undefined,
-      false
+      false,
+      // v3 defaults to onlyScaleDown: false, which would upscale small images.
+      { mode: "contain", onlyScaleDown: true }
     );
     return result;
   } catch (error) {

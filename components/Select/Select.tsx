@@ -4,7 +4,7 @@ import {
   StyleProp, StyleSheet, Text, TextInput, TextStyle,
   TouchableOpacity, TouchableWithoutFeedback, View, ViewStyle,
 } from "react-native";
-import IconMaterial from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialDesignIcons as IconMaterial } from "@react-native-vector-icons/material-design-icons/static";
 import { colors, sizes } from "../../theme";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
   },
-  optionItemSelected: { backgroundColor: "#FFF3E0" },
+  optionItemSelected: { backgroundColor: colors.secondarySoft },
   optionItemDisabled: { opacity: 0.5 },
   optionLabel: { flex: 1, fontSize: sizes.fontSize.option, color: colors.black },
   optionLabelSelected: { color: colors.secondary, fontWeight: "500" },

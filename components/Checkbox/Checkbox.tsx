@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
-import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MaterialDesignIcons as IconMaterial } from '@react-native-vector-icons/material-design-icons/static';
 import { colors, sizes } from '../../theme';
 
 export interface CheckboxProps {

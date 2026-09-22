@@ -4,7 +4,7 @@ import { Dimensions, Keyboard, Modal as RNModal, NativeSyntheticEvent, NativeScr
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const KEYBOARD_GAP = 40;
 
-import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MaterialDesignIcons as IconMaterial } from '@react-native-vector-icons/material-design-icons/static';
 import { colors, sizes } from '../../theme';
 import Button from '../Button/Button';
 
@@ -28,6 +28,7 @@ export interface ModalProps {
   showCancel?: boolean;
   confirmText?: string;
   cancelText?: string;
+  confirmColor?: string;
   footer?: React.ReactNode;
   scrollable?: boolean;
   maxHeight?: number | `${number}%`;
@@ -38,7 +39,7 @@ export interface ModalProps {
 const Modal: React.FC<ModalProps> = ({
   visible, onClose, title, type, children,
   onConfirm, onCancel, showCancel = true,
-  confirmText = 'Xác nhận', cancelText = 'Huỷ',
+  confirmText = 'Xác nhận', cancelText = 'Huỷ', confirmColor,
   footer, scrollable = false, maxHeight = SCREEN_HEIGHT * 0.80,
   disableBackdropClose, style,
 }) => {
@@ -112,7 +113,7 @@ const Modal: React.FC<ModalProps> = ({
         )}
         <Button text={confirmText} onPress={handleConfirm}
           loading={confirmLoading}
-          color={type === 'error' ? colors.red : undefined}
+          color={confirmColor ?? (type === 'error' ? colors.red : undefined)}
           style={styles.footerBtn} />
       </View>
     );

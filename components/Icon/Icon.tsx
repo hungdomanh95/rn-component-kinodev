@@ -1,7 +1,7 @@
 import React from 'react';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Feather from 'react-native-vector-icons/Feather';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { AntDesign } from '@react-native-vector-icons/ant-design/static';
+import { Feather } from '@react-native-vector-icons/feather/static';
+import { Ionicons } from '@react-native-vector-icons/ionicons/static';
 
 export type IconName = 'calendar' | 'chevron-back' | 'chevron-forward' | 'x';
 

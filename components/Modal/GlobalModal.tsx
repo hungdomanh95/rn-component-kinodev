@@ -24,6 +24,7 @@ const GlobalModal: React.FC = () => {
       showCancel={config.showCancel}
       confirmText={config.confirmText}
       cancelText={config.cancelText}
+      confirmColor={config.confirmColor}
       footer={config.footer}
       scrollable={config.scrollable}
       maxHeight={config.maxHeight}

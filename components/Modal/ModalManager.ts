@@ -9,6 +9,9 @@ export interface ModalConfig {
   showCancel?: boolean;
   confirmText?: string;
   cancelText?: string;
+  /** Override màu nút confirm — mặc định theo `type` (error → đỏ). Dùng khi
+   * hành động confirm không phải destructive (vd "Thử lại" sau lỗi mạng). */
+  confirmColor?: string;
   footer?: React.ReactNode;
   scrollable?: boolean;
   maxHeight?: number | `${number}%`;

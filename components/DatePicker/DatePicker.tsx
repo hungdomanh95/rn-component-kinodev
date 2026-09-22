@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Animated, Easing, StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 import RNDatePicker from 'react-native-date-picker';
-import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MaterialDesignIcons as IconMaterial } from '@react-native-vector-icons/material-design-icons/static';
 import { colors, sizes } from '../../theme';
 
 const pad = (n: number) => String(n).padStart(2, '0');

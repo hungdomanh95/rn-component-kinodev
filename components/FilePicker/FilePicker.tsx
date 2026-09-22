@@ -1,4 +1,7 @@
-import { MediaType, openPicker } from "@baronha/react-native-multiple-image-picker";
+import { openPicker } from "@baronha/react-native-multiple-image-picker";
+import type { Response as ResizeResponse } from "@bam.tech/react-native-image-resizer";
+import FastImage from "@d11/react-native-fast-image";
+import { FileToCopy, keepLocalCopy, NonEmptyArray, pick, types } from "@react-native-documents/picker";
 import Icon from "assets/icons";
 import React, { Fragment, useCallback, useState } from "react";
 import {
@@ -10,10 +13,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { DocumentPickerOptions, pick, types } from "react-native-document-picker";
-import FastImage from "react-native-fast-image";
 import * as RnImagePicker from "react-native-image-picker";
-import * as RnImgResize from "react-native-image-resizer";
 import { colors, sizes } from "../../theme";
 import { Row } from "../Row";
 import { Space } from "../Space";
@@ -27,7 +27,7 @@ import { styles } from "./style";
 export type { ResponsePickerType };
 
 // resizeImage's maxWidth/maxHeight are a bounding box, not a forced size —
-// react-native-image-resizer keeps aspect ratio and never upscales, so
+// resizeImage keeps aspect ratio and never upscales (onlyScaleDown), so
 // capping both at this value shrinks large camera-roll photos (often
 // 3000-4000px) while leaving already-small images untouched.
 const MAX_UPLOAD_DIMENSION = 1600;
@@ -37,7 +37,7 @@ export type ButtonType = "multi" | "single";
 export type FilePickerProps = {
   styleContainer?: StyleProp<ViewStyle>;
   title?: string;
-  response?: RnImgResize.Response | undefined | any;
+  response?: ResizeResponse | undefined | any;
   setResponse?: (value: ResponsePickerType, id?: string) => void;
   removeImage?: (key: string, idx: number) => void;
   /**
@@ -132,12 +132,13 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
   const handleImagePick = async () => {
     try {
       const responsePick = await openPicker({
-        mediaType: "image" as MediaType,
-        maxSelectedAssets: type === "single" ? 1 : remainingSlots,
+        mediaType: "image",
+        selectMode: "multiple",
+        maxSelect: type === "single" ? 1 : remainingSlots,
       });
 
       const resizedImages = await Promise.all(
-        responsePick.map(async (image: any) => {
+        responsePick.map(async (image) => {
           return resizeImage({ path: image.path, maxWidth: MAX_UPLOAD_DIMENSION, maxHeight: MAX_UPLOAD_DIMENSION });
         })
       );
@@ -154,18 +155,25 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
 
   const onPickerPDF = async () => {
     try {
-      const config: DocumentPickerOptions = {
-        allowMultiSelection: true,
-        type: [types.pdf],
-        mode: "open",
-        copyTo: "documentDirectory",
-      };
-      const responsePick = await pick(config);
-      // react-native-document-picker's pick() has no max-selection option
-      // (unlike openPicker's maxSelectedAssets for images), so cap the
-      // result to the remaining slots after the fact instead.
+      const responsePick = await pick({ allowMultiSelection: true, type: [types.pdf] });
+      // pick() has no max-selection option (unlike openPicker's maxSelect
+      // for images), so cap the result to the remaining slots after the fact.
       const limitedPick = type === "single" ? responsePick.slice(0, 1) : responsePick.slice(0, remainingSlots);
-      const payload = convertData(limitedPick, String(id));
+      if (limitedPick.length === 0) return;
+      // Picked uris are only readable for this session (content:// on Android),
+      // so copy them into the app's own storage before storing/uploading.
+      const copies = await keepLocalCopy({
+        files: limitedPick.map((file) => ({
+          uri: file.uri,
+          fileName: file.name ?? "document.pdf",
+        })) as NonEmptyArray<FileToCopy>,
+        destination: "documentDirectory",
+      });
+      const copied = limitedPick.flatMap((file, idx) => {
+        const copy = copies[idx];
+        return copy?.status === "success" ? [{ ...file, uri: copy.localUri }] : [];
+      });
+      const payload = convertData(copied, String(id));
       setResponse?.([...response, ...payload]);
     } catch (error) {
       console.log("Error: PDF picker", error);
