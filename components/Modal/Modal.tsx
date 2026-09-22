@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, Keyboard, Modal as RNModal, NativeSyntheticEvent, NativeScrollEvent, Platform, ScrollView, StyleProp, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
+import { Dimensions, Keyboard, Modal as RNModal, NativeSyntheticEvent, NativeScrollEvent, Platform, ScrollView, ScrollViewInstance, StyleProp, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const KEYBOARD_GAP = 40;
@@ -10,7 +10,7 @@ import Button from '../Button/Button';
 
 type ModalType = 'info' | 'success' | 'warning' | 'error';
 
-const TYPE_CONFIG: Record<ModalType, { icon: string; color: string }> = {
+const TYPE_CONFIG: Record<ModalType, { icon: React.ComponentProps<typeof IconMaterial>['name']; color: string }> = {
   info:    { icon: 'information',  color: colors.primary },
   success: { icon: 'check-circle', color: '#4CAF50' },
   warning: { icon: 'alert',        color: colors.secondary },
@@ -45,7 +45,7 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [spacerHeight, setSpacerHeight] = useState(0);
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const scrollOffsetRef = useRef(0);
   const pendingScrollRef = useRef<(() => void) | null>(null);
 
@@ -177,7 +177,7 @@ const Modal: React.FC<ModalProps> = ({
 };
 
 const styles = StyleSheet.create({
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.5)' },
   wrapper: { flex: 1, justifyContent: 'center', paddingHorizontal: sizes.padding * 1.5 } as any,
   container: { backgroundColor: colors.white, borderRadius: sizes.borderRadius, overflow: 'hidden' },
   scrollContent: { flexShrink: 1 },

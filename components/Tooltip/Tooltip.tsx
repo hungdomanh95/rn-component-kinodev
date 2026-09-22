@@ -1,14 +1,12 @@
 import React, { useRef, useState } from "react";
 import {
   Dimensions,
-  findNodeHandle,
   LayoutRectangle,
   Modal,
   Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
-  UIManager,
   View,
 } from "react-native";
 import { MaterialDesignIcons as IconMaterial } from "@react-native-vector-icons/material-design-icons/static";
@@ -32,17 +30,14 @@ const Tooltip: React.FC<TooltipProps> = ({
 }) => {
   const [visible, setVisible] = useState(false);
   const [position, setPosition] = useState<LayoutRectangle>({ x: 0, y: 0, width: 0, height: 0 });
-  const buttonRef = useRef<TouchableOpacity>(null);
+  const buttonRef = useRef<React.ComponentRef<typeof TouchableOpacity>>(null);
   const [tooltipHeight, setTooltipHeight] = useState(40);
   const [tooltipWidth, setTooltipWidth] = useState(0);
   const showTooltip = () => {
-    const handle = findNodeHandle(buttonRef.current);
-    if (handle) {
-      UIManager.measureInWindow(handle, (x: number, y: number, width: number, height: number) => {
-        setPosition({ x, y, width, height });
-        setVisible(true);
-      });
-    }
+    buttonRef.current?.measureInWindow((x, y, width, height) => {
+      setPosition({ x, y, width, height });
+      setVisible(true);
+    });
   };
 
   const hideTooltip = () => {

@@ -5,10 +5,13 @@ Thư viện component UI dùng chung cho các app React Native của MAFC. Ship 
 ## Cài đặt
 
 ```bash
-yarn add github:hungdomanh95/rn-component-kinodev#v1.0.0
+yarn add github:hungdomanh95/rn-component-kinodev#v2.0.0
 ```
 
-Yêu cầu app host đã có sẵn: `react`, `react-native`, `styled-components`. Các dependency khác (formik, dayjs, react-native-vector-icons, react-native-calendars, các picker/file lib...) được khai báo trong `dependencies` của package này và sẽ tự cài theo.
+- **v2.x**: React Native ≥ 0.83, React 19, New Architecture. Các thư viện có code native nằm trong `peerDependencies` (autolinking chỉ quét dependency trực tiếp của app), nên app host phải tự cài đúng danh sách `peerDependencies` trong `package.json`. Các thư viện thuần JS (formik, dayjs, react-native-calendars, styled-components) tự cài theo.
+- **v1.x** (branch `v1`): dành cho app còn ở RN 0.71 (vd mcrm-mobile-app). Chỉ nhận bản sửa lỗi.
+
+Màu/kích thước mặc định của component đọc từ `theme.ts` của thư viện. Muốn đổi theo app host thì gọi `configureTheme({colors, sizes})` **trước khi** bất kỳ component nào được import (component bake style lúc module load). Lưu ý: Babel hoist mọi `import`, nên phải `require('./App')` sau lời gọi đó thay vì `import App`.
 
 ## Sử dụng
 
@@ -33,7 +36,7 @@ import { Button, Input, Select, Row, Text } from 'rn-component-kinodev';
 | `FilePicker` (`MultiFile`, `SingleFile`, `transferFile`, `viewFile`) | **Chưa export ra `index.ts` gốc** — vẫn gắn module nội bộ của mcrm-mobile-app (Redux, ToastController, theme riêng) nên chưa an toàn để dùng ở project khác. Import trực tiếp từ `rn-component-kinodev/components/FilePicker` nếu thực sự cần (chỉ dùng được trong mcrm-mobile-app). Sẽ decouple và export lại ở phiên bản sau |
 | `Button` | Variants: primary, outline, text |
 | `Card` | Container, hỗ trợ `onPress` |
-| `Modal` / `GlobalModal` | Modal có overlay. `GlobalModal` dùng theo kiểu imperative qua `ModalManager` |
+| `Modal` / `GlobalModal` | Modal có overlay. `GlobalModal` dùng theo kiểu imperative qua `showModal(config)` / `hideModal()` |
 | `Body` / `ScrollBody` | Wrapper full-height / có scroll |
 | `Footer` | Container dưới cùng |
 | `Row` / `Space` | Layout utility |

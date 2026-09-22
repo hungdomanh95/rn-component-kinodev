@@ -58,7 +58,7 @@ Every form input has two variants:
 | `Radio` / `RadioField` | `Radio/` | Radio group, supports row/column layout |
 | `Button` | `Button/` | Variants: primary (filled), outline, text |
 | `Card` | `Card/` | Container with optional `onPress` |
-| `Modal` / `GlobalModal` | `Modal/` | Modal with overlay. `GlobalModal` enables imperative usage via `ModalManager` |
+| `Modal` / `GlobalModal` | `Modal/` | Modal with overlay. `GlobalModal` enables imperative usage via `showModal`/`hideModal` |
 | `Body` | `Body/` | Full-height wrapper, dismisses keyboard on touch |
 | `ScrollBody` | `ScrollBody/` | Scrollable body wrapper, supports `refreshControl`, `scrollRef`, `style`, `contentContainerStyle` |
 | `Footer` | `Footer/` | Bottom container |
@@ -103,9 +103,10 @@ Every form input has two variants:
 
 ## Modal System
 
-`GlobalModal` + `ModalManager` enable imperative modal usage without React context:
+`GlobalModal` + `showModal`/`hideModal` enable imperative modal usage without React context
+(`ModalManager` itself only exports `subscribe`):
 ```typescript
-ModalManager.show({ title: '...', content: <View /> });
-ModalManager.hide();
+showModal({ title: '...', content: <View /> });
+hideModal();
 ```
 Mount `<GlobalModal />` once at the root of the app for this to work.

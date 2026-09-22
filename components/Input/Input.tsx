@@ -2,17 +2,22 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Animated,
   Easing,
-  InteractionManager,
   StyleProp,
   StyleSheet,
   Text,
   TextInput,
+  TextInputInstance,
   TextInputProps,
   TextStyle,
   TouchableOpacity,
   View,
   ViewStyle,
 } from "react-native";
+
+// RN installs these timers at runtime (Libraries/Core/setUpTimers.js) but its
+// type definitions don't declare them.
+declare function requestIdleCallback(callback: () => void): number;
+declare function cancelIdleCallback(handle: number): void;
 import { MaterialDesignIcons as IconMaterial } from "@react-native-vector-icons/material-design-icons/static";
 import { colors, sizes } from "../../theme";
 
@@ -58,7 +63,7 @@ const Input: React.FC<InputProps> = (props) => {
     value = "", onChangeText, onBlur, error, touched, accentColor, ...inputProps
   } = props;
 
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<TextInputInstance>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -66,8 +71,9 @@ const Input: React.FC<InputProps> = (props) => {
     if (autoFocus) {
       // Đợi transition chuyển màn xong mới focus, tránh keyboard-show animation
       // chạy đè lên screen-push animation gây giật ở lần mount đầu tiên.
-      const task = InteractionManager.runAfterInteractions(() => { inputRef.current?.focus(); });
-      return () => task.cancel();
+      // (InteractionManager was removed in RN 0.87; requestIdleCallback is its replacement.)
+      const handle = requestIdleCallback(() => { inputRef.current?.focus(); });
+      return () => cancelIdleCallback(handle);
     }
   }, [autoFocus]);
 

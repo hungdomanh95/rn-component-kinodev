@@ -3,6 +3,7 @@ import {
   Keyboard,
   Platform,
   ScrollView,
+  ScrollViewInstance,
   TextInput,
   TouchableWithoutFeedback,
   View,
@@ -28,7 +29,7 @@ const ScrollBody: React.FC<ScrollBodyProps> = ({
   contentContainerStyle,
   refreshControl,
 }) => {
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<ScrollViewInstance>(null);
   const scrollOffsetRef = useRef(0);
   const containerWindowYRef = useRef(0);
   const contentHeightRef = useRef(0);

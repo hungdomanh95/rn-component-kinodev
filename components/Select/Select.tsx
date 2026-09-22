@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   clearButtonText: { color: colors.white, fontSize: sizes.fontSize.small, fontWeight: "bold" },
   errorText: { fontSize: sizes.fontSize.error, color: colors.red, marginTop: 4 },
   modalContainer: { flex: 1, justifyContent: "flex-end" },
-  modalOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0, 0, 0, 0.5)" },
+  modalOverlay: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0, 0, 0, 0.5)" },
   modalContent: {
     backgroundColor: colors.white,
     borderTopLeftRadius: sizes.borderRadiusLg,
