@@ -1,8 +1,8 @@
-import { openPicker } from "@baronha/react-native-multiple-image-picker";
 import type { Response as ResizeResponse } from "@bam.tech/react-native-image-resizer";
 import FastImage from "@d11/react-native-fast-image";
 import { FileToCopy, keepLocalCopy, NonEmptyArray, pick, types } from "@react-native-documents/picker";
 import Icon from "assets/icons";
+import { ToastController } from "controller";
 import React, { Fragment, useCallback, useState } from "react";
 import {
   LayoutChangeEvent,
@@ -116,9 +116,12 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
   };
 
   const handlePicker = async (pickType: "images" | "pdf" | "camera") => {
-    const permissionType = pickType === "camera" ? "camera" : "library";
-    const isGranted = await handlePermission(permissionType);
-    if (!isGranted) return;
+    // The system photo picker (PHPicker on iOS, Photo Picker on Android) and the document
+    // picker need no library permission - only the camera does.
+    if (pickType === "camera") {
+      const isGranted = await handlePermission("camera");
+      if (!isGranted) return;
+    }
 
     const actionMap = {
       images: handleImagePick,
@@ -131,16 +134,27 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
 
   const handleImagePick = async () => {
     try {
-      const responsePick = await openPicker({
-        mediaType: "image",
-        selectMode: "multiple",
-        maxSelect: type === "single" ? 1 : remainingSlots,
-      });
+      const selectionLimit = type === "single" ? 1 : remainingSlots;
+      // selectionLimit 0 would mean "unlimited" - never open the picker with no slots left.
+      if (selectionLimit < 1) return;
 
+      const responsePick = await RnImagePicker.launchImageLibrary({
+        mediaType: "photo",
+        selectionLimit,
+      });
+      if (responsePick.didCancel) return;
+      if (responsePick.errorCode) {
+        console.log("Error: Image picker", responsePick.errorCode, responsePick.errorMessage);
+        ToastController.error("Không mở được thư viện ảnh");
+        return;
+      }
+
+      // Some Android pickers ignore selectionLimit, so cap the result here as well.
+      const picked = (responsePick.assets ?? []).filter((asset) => asset.uri).slice(0, selectionLimit);
       const resizedImages = await Promise.all(
-        responsePick.map(async (image) => {
-          return resizeImage({ path: image.path, maxWidth: MAX_UPLOAD_DIMENSION, maxHeight: MAX_UPLOAD_DIMENSION });
-        })
+        picked.map((asset) =>
+          resizeImage({ path: asset.uri as string, maxWidth: MAX_UPLOAD_DIMENSION, maxHeight: MAX_UPLOAD_DIMENSION })
+        )
       );
       const validImages = resizedImages.filter(Boolean);
       if (validImages.length === 0) return;
