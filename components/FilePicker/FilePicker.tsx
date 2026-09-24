@@ -32,6 +32,17 @@ export type { ResponsePickerType };
 // 3000-4000px) while leaving already-small images untouched.
 const MAX_UPLOAD_DIMENSION = 1600;
 
+// Android < 13 has no system Photo Picker, so react-native-image-picker falls back to the
+// Files app (OPEN_DOCUMENT): there a plain tap picks one image and closes, multi-select
+// needs a long-press, and selectionLimit is not enforced by the picker itself.
+const needsAndroidMultiSelectHint = Platform.OS === "android" && Number(Platform.Version) < 33;
+
+// Images on iOS never trip this (PHPicker enforces selectionLimit); PDFs on either platform
+// and images on Android can, since neither picker enforces a maximum.
+const notifyTrimmed = (picked: number, allowed: number) => {
+  if (picked > allowed) ToastController.info(`Chỉ còn nhận thêm ${allowed} file, đã bỏ bớt ${picked - allowed} file`);
+};
+
 export type ButtonType = "multi" | "single";
 
 export type FilePickerProps = {
@@ -150,7 +161,9 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
       }
 
       // Some Android pickers ignore selectionLimit, so cap the result here as well.
-      const picked = (responsePick.assets ?? []).filter((asset) => asset.uri).slice(0, selectionLimit);
+      const withUri = (responsePick.assets ?? []).filter((asset) => asset.uri);
+      notifyTrimmed(withUri.length, selectionLimit);
+      const picked = withUri.slice(0, selectionLimit);
       const resizedImages = await Promise.all(
         picked.map((asset) =>
           resizeImage({ path: asset.uri as string, maxWidth: MAX_UPLOAD_DIMENSION, maxHeight: MAX_UPLOAD_DIMENSION })
@@ -172,7 +185,9 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
       const responsePick = await pick({ allowMultiSelection: true, type: [types.pdf] });
       // pick() has no max-selection option (unlike openPicker's maxSelect
       // for images), so cap the result to the remaining slots after the fact.
-      const limitedPick = type === "single" ? responsePick.slice(0, 1) : responsePick.slice(0, remainingSlots);
+      const allowed = type === "single" ? 1 : remainingSlots;
+      notifyTrimmed(responsePick.length, allowed);
+      const limitedPick = responsePick.slice(0, allowed);
       if (limitedPick.length === 0) return;
       // Picked uris are only readable for this session (content:// on Android),
       // so copy them into the app's own storage before storing/uploading.
@@ -274,6 +289,11 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
               </View>
             )}
           </View>
+          {needsAndroidMultiSelectHint && typePicker !== "camera" && typePicker !== "files" && (
+            <Text style={[styles.textCount, { paddingVertical: 4 }]}>
+              Nhấn giữ một ảnh để chọn nhiều ảnh cùng lúc
+            </Text>
+          )}
           <ButtonContainer typePicker={typePicker} disabled={isDisabled} handlePicker={handlePicker} />
         </View>
       );

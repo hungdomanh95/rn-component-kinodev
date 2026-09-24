@@ -1,6 +1,6 @@
 {
   "name": "rn-component-kinodev",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "main": "index.ts",
   "types": "index.ts",
   "license": "UNLICENSED",
