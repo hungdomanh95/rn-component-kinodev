@@ -6,8 +6,14 @@ export interface TextProps2 extends TextProps {
   style?: StyleProp<TextStyle>;
 }
 
-const Text: React.FC<TextProps2> = ({ style, ...props }) => {
-  return <RNText style={[styles.text, style]} {...props} />;
+const Text: React.FC<TextProps2> = ({ style, maxFontSizeMultiplier = 1.3, ...props }) => {
+  return (
+    <RNText
+      style={[styles.text, style]}
+      maxFontSizeMultiplier={maxFontSizeMultiplier}
+      {...props}
+    />
+  );
 };
 
 const styles = StyleSheet.create({
