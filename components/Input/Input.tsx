@@ -111,7 +111,7 @@ const Input: React.FC<InputProps> = (props) => {
   const hasValue = !!value && value.length > 0;
 
   return (
-    <View style={[styles.container, style, disabled && styles.disabled]}>
+    <View style={[styles.container, style]}>
       {label && (
         <View style={styles.labelRow}>
           <Animated.Text style={[styles.label, { color: labelColor }, labelStyle]}>
@@ -127,6 +127,7 @@ const Input: React.FC<InputProps> = (props) => {
           styles.inputContainer,
           { borderColor: isFocused ? (accentColor ?? colors.secondary) : colors.darkGray, height: inputHeight, alignItems: multiline ? "flex-start" : "center" },
           hasError && styles.inputError,
+          disabled && styles.disabled,
         ]}
         pointerEvents={disabled ? "none" : "auto"}
       >
