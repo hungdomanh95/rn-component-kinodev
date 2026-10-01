@@ -2,6 +2,7 @@ import { MediaType, openPicker } from "@baronha/react-native-multiple-image-pick
 import Icon from "assets/icons";
 import React, { Fragment, useCallback, useState } from "react";
 import {
+  Image,
   LayoutChangeEvent,
   Platform,
   StyleProp,
@@ -11,7 +12,7 @@ import {
   ViewStyle,
 } from "react-native";
 import { DocumentPickerOptions, pick, types } from "react-native-document-picker";
-import FastImage from "react-native-fast-image";
+import FastImage, { ImageStyle, Priority } from "react-native-fast-image";
 import * as RnImagePicker from "react-native-image-picker";
 import * as RnImgResize from "react-native-image-resizer";
 import { colors, sizes } from "../../theme";
@@ -31,6 +32,31 @@ export type { ResponsePickerType };
 // capping both at this value shrinks large camera-roll photos (often
 // 3000-4000px) while leaving already-small images untouched.
 const MAX_UPLOAD_DIMENSION = 1600;
+
+// Some previously-uploaded documents come back from the backend with a mismatched
+// Content-Type (observed: a real PNG served as `image/jpeg`). Confirmed via a plain
+// fetch() that the bytes are a well-formed image either way - a plain RN Image and
+// the OS's own file viewer both render them fine. Glide (FastImage's Android
+// decoder) is strict about this mismatch and fails every decode path for it, while
+// iOS's FastImage (SDWebImage) is unaffected. Rather than patch Glide's behavior,
+// fall back to plain RN Image (a different, more lenient decode path) on error.
+type ThumbnailImageProps = {
+  uri: string;
+  style: StyleProp<ImageStyle>;
+  priority?: Priority;
+};
+
+const ThumbnailImage: React.FC<ThumbnailImageProps> = ({ uri, style, priority }) => {
+  const [useFallback, setUseFallback] = useState(false);
+
+  if (useFallback) {
+    return <Image style={style as any} source={{ uri }} />;
+  }
+
+  return (
+    <FastImage style={style} source={{ uri, priority }} onError={() => setUseFallback(true)} />
+  );
+};
 
 export type ButtonType = "multi" | "single";
 
@@ -235,7 +261,7 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
                             <Icon name="pdf" color={colors.white} size={40} />
                           </View>
                         ) : (
-                          <FastImage style={styles.viewIMAGE} key={item?.path} source={{ uri: item?.path }} />
+                          <ThumbnailImage style={styles.viewIMAGE} uri={item?.path} />
                         )}
                       </TouchableWithoutFeedback>
                       {item.type === "application/pdf" && (
@@ -279,10 +305,7 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
                       <TouchableWithoutFeedback
                         onPress={() => handleOpenFile(item?.path?.includes("http") ? "link" : "local", item?.path)}
                       >
-                        <FastImage
-                          style={styles.viewIMAGE}
-                          source={{ uri: item?.path, priority: FastImage.priority.high }}
-                        />
+                        <ThumbnailImage style={styles.viewIMAGE} uri={item?.path} priority={FastImage.priority.high} />
                       </TouchableWithoutFeedback>
                     </Fragment>
                   ))}
