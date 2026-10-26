@@ -1,5 +1,6 @@
 import { useField } from 'formik';
 import React, { useCallback, useMemo } from 'react';
+import { useFieldRegistration } from '../ScrollBody/fieldRegistry';
 import DatePicker, { DatePickerProps } from './DatePicker';
 
 interface DatePickerFieldProps extends Omit<DatePickerProps, 'value' | 'onChange' | 'error' | 'touched'> {
@@ -9,6 +10,7 @@ interface DatePickerFieldProps extends Omit<DatePickerProps, 'value' | 'onChange
 
 const DatePickerField: React.FC<DatePickerFieldProps> = ({ name, testID, ...props }) => {
   const [, meta, helpers] = useField(name);
+  const registerRef = useFieldRegistration(name);
 
   // DatePicker là React.memo — `new Date(...)` tạo object mới mỗi render dù meta.value
   // (chuỗi ISO) không đổi, làm memo luôn thấy value "khác" và fail. useMemo theo đúng
@@ -26,6 +28,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({ name, testID, ...prop
   return (
     <DatePicker
       {...props}
+      containerRef={registerRef}
       testID={testID ?? name}
       value={value}
       onChange={handleChange}

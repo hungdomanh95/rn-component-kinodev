@@ -60,7 +60,7 @@ Every form input has two variants:
 | `Card` | `Card/` | Container with optional `onPress` |
 | `Modal` / `GlobalModal` | `Modal/` | Modal with overlay. `GlobalModal` enables imperative usage via `ModalManager` |
 | `Body` | `Body/` | Full-height wrapper, dismisses keyboard on touch |
-| `ScrollBody` | `ScrollBody/` | Scrollable body wrapper, supports `refreshControl`, `scrollRef`, `style`, `contentContainerStyle` |
+| `ScrollBody` | `ScrollBody/` | Scrollable body wrapper, supports `refreshControl`, `scrollRef`, `style`, `contentContainerStyle`. Inside Formik: auto-scrolls to the first errored `*Field` when submit fails (fields register via `useFieldRegistration`; custom fields can use it too) |
 | `Footer` | `Footer/` | Bottom container |
 | `Row` | `Row/` | Horizontal layout utility |
 | `Space` | `Space/` | Spacing utility |

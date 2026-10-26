@@ -1,5 +1,6 @@
 import { useField } from "formik";
 import React, { useCallback, useEffect } from "react";
+import { useFieldRegistration } from "../ScrollBody/fieldRegistry";
 import Input, { InputProps } from "./Input";
 
 interface InputFieldProps extends Omit<InputProps, "value" | "onChangeText" | "onBlur" | "error" | "touched"> {
@@ -11,9 +12,11 @@ interface InputFieldProps extends Omit<InputProps, "value" | "onChangeText" | "o
 
 const InputField: React.FC<InputFieldProps> = ({ name, defaultValue, testID, ...props }) => {
   const [, meta, helpers] = useField(name);
+  const registerRef = useFieldRegistration(name);
+  const isEmpty = meta.value == null || meta.value === "";
 
   useEffect(() => {
-    if (defaultValue !== undefined && !meta.value) {
+    if (defaultValue !== undefined && isEmpty) {
       helpers.setValue(defaultValue);
     }
   }, []);
@@ -27,8 +30,10 @@ const InputField: React.FC<InputFieldProps> = ({ name, defaultValue, testID, ...
   return (
     <Input
       {...props}
+      containerRef={registerRef}
       testID={testID ?? name}
-      value={meta.value || ""}
+      // `||` biến số 0 thành ô trống; String() vì Formik có thể giữ giá trị dạng number
+      value={isEmpty ? "" : String(meta.value)}
       onChangeText={helpers.setValue}
       onBlur={handleBlur}
       error={meta.error}

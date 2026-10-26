@@ -23,13 +23,16 @@ export interface RadioProps {
   labelStyle?: StyleProp<TextStyle>;
   accentColor?: string;
   testID?: string;
+  /** Ref tới view gốc — *Field dùng để ScrollBody cuộn tới field lỗi */
+  containerRef?: React.Ref<View>;
 }
 
-const Radio: React.FC<RadioProps> = ({ data, value, onChange, label, isRequired, direction = 'column', disabled, noError, error, touched, style, labelStyle, accentColor, testID }) => {
+const Radio: React.FC<RadioProps> = ({ data, value, onChange, label, isRequired, direction = 'column', disabled, noError, error, touched, style, labelStyle, accentColor, testID, containerRef }) => {
   const hasError = touched && !!error;
 
   return (
-    <View style={[styles.container, style]} testID={testID}>
+    // collapsable={false}: Android gộp view chỉ có style layout, khi đó measureInWindow không đo được
+    <View ref={containerRef} collapsable={!containerRef} style={[styles.container, style]} testID={testID}>
       {label && (
         <Text style={[styles.label, labelStyle]}>
           {label}{isRequired && <Text style={styles.required}> *</Text>}

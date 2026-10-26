@@ -14,13 +14,16 @@ export interface CheckboxProps {
   touched?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
+  /** Ref tới view gốc — *Field dùng để ScrollBody cuộn tới field lỗi */
+  containerRef?: React.Ref<View>;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ value = false, onChange, label, description, disabled, noError, error, touched, style, testID }) => {
+const Checkbox: React.FC<CheckboxProps> = ({ value = false, onChange, label, description, disabled, noError, error, touched, style, testID, containerRef }) => {
   const hasError = touched && !!error;
 
   return (
-    <View style={[styles.container, style]}>
+    // collapsable={false}: Android gộp view chỉ có style layout, khi đó measureInWindow không đo được
+    <View ref={containerRef} collapsable={!containerRef} style={[styles.container, style]}>
       <TouchableOpacity
         testID={testID}
         style={[styles.row, disabled && styles.disabled]}

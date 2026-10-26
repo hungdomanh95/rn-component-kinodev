@@ -68,6 +68,8 @@ export interface SelectProps {
   error?: string;
   touched?: boolean;
   testID?: string;
+  /** Ref tới view gốc — *Field dùng để ScrollBody cuộn tới field lỗi */
+  containerRef?: React.Ref<View>;
 }
 
 const Select: React.FC<SelectProps> = (props) => {
@@ -79,7 +81,7 @@ const Select: React.FC<SelectProps> = (props) => {
     modalTitle, style, labelStyle, inputStyle,
     leftIcon, emptyText = "Không có dữ liệu",
     loading = false, onOpen,
-    value, onValueChange, onBlur, error, touched, testID,
+    value, onValueChange, onBlur, error, touched, testID, containerRef,
   } = props;
 
   // `options = []` mặc định khi destructure chỉ bắt được `undefined`, không bắt `null`.
@@ -306,7 +308,8 @@ const Select: React.FC<SelectProps> = (props) => {
   );
 
   return (
-    <View style={[styles.container, style, disabled && styles.disabled]}>
+    // collapsable={false}: Android gộp view chỉ có style layout, khi đó measureInWindow không đo được
+    <View ref={containerRef} collapsable={!containerRef} style={[styles.container, style, disabled && styles.disabled]}>
       {label && (
         <Animated.Text style={[styles.label, { color: labelColor }, labelStyle]}>
           {label}{isRequired && <Text style={styles.required}> *</Text>}

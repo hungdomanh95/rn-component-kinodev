@@ -36,6 +36,8 @@ export interface DatePickerProps {
   cancelText?: string;
   locale?: string;
   testID?: string;
+  /** Ref tới view gốc — *Field dùng để ScrollBody cuộn tới field lỗi */
+  containerRef?: React.Ref<View>;
 }
 
 const DatePicker: React.FC<DatePickerProps> = (props) => {
@@ -43,7 +45,7 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
     label, isRequired, disabled, noError, placeholder, mode = 'date',
     value, onChange, minimumDate, maximumDate, showClearButton,
     style, labelStyle, error, touched, title,
-    confirmText = 'Xác nhận', cancelText = 'Hủy', locale = 'vi', testID,
+    confirmText = 'Xác nhận', cancelText = 'Hủy', locale = 'vi', testID, containerRef,
   } = props;
 
   const [open, setOpen] = useState(false);
@@ -75,7 +77,8 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
   const hasValue = !!value;
 
   return (
-    <View style={[styles.container, style]}>
+    // collapsable={false}: Android gộp view chỉ có style layout, khi đó measureInWindow không đo được
+    <View ref={containerRef} collapsable={!containerRef} style={[styles.container, style]}>
       {label && (
         <Animated.Text style={[styles.label, { color: labelColor }, labelStyle]}>
           {label}{isRequired && <Text style={styles.required}> *</Text>}

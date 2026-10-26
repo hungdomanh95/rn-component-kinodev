@@ -1,5 +1,6 @@
 import { useField } from "formik";
 import React, { useCallback } from "react";
+import { useFieldRegistration } from "../ScrollBody/fieldRegistry";
 import Select, { SelectOption, SelectProps } from "./Select";
 
 interface SelectFieldProps extends Omit<SelectProps, "value" | "onBlur" | "error" | "touched"> {
@@ -9,6 +10,7 @@ interface SelectFieldProps extends Omit<SelectProps, "value" | "onBlur" | "error
 
 const SelectField: React.FC<SelectFieldProps> = ({ name, onValueChange, testID, ...props }) => {
   const [, meta, helpers] = useField(name);
+  const registerRef = useFieldRegistration(name);
 
   // Select là React.memo — cần onValueChange/onBlur ổn định (không tạo arrow function mới
   // mỗi render) để memo thật sự có tác dụng khi field khác trong cùng Formik form thay đổi.
@@ -27,6 +29,7 @@ const SelectField: React.FC<SelectFieldProps> = ({ name, onValueChange, testID, 
   return (
     <Select
       {...props}
+      containerRef={registerRef}
       testID={testID ?? name}
       value={meta.value}
       onValueChange={handleValueChange}

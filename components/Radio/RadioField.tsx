@@ -1,5 +1,6 @@
 import { useField } from 'formik';
 import React, { useCallback } from 'react';
+import { useFieldRegistration } from '../ScrollBody/fieldRegistry';
 import Radio, { RadioProps } from './Radio';
 
 interface RadioFieldProps extends Omit<RadioProps, 'value' | 'onChange' | 'error' | 'touched'> {
@@ -9,6 +10,7 @@ interface RadioFieldProps extends Omit<RadioProps, 'value' | 'onChange' | 'error
 
 const RadioField: React.FC<RadioFieldProps> = ({ name, testID, ...props }) => {
   const [, meta, helpers] = useField(name);
+  const registerRef = useFieldRegistration(name);
 
   // Radio là React.memo — cần onChange ổn định (không tạo arrow function mới mỗi render)
   // để memo thật sự có tác dụng khi field khác trong cùng Formik form thay đổi.
@@ -23,6 +25,7 @@ const RadioField: React.FC<RadioFieldProps> = ({ name, testID, ...props }) => {
   return (
     <Radio
       {...props}
+      containerRef={registerRef}
       testID={testID ?? name}
       value={meta.value}
       onChange={handleChange}

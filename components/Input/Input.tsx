@@ -48,6 +48,8 @@ export interface InputProps extends TextInputProps {
   error?: string;
   touched?: boolean;
   accentColor?: string;
+  /** Ref tới view gốc — *Field dùng để ScrollBody cuộn tới field lỗi */
+  containerRef?: React.Ref<View>;
 }
 
 const Input: React.FC<InputProps> = (props) => {
@@ -55,7 +57,7 @@ const Input: React.FC<InputProps> = (props) => {
     label, isRequired, disabled, noError, style, labelStyle, inputStyle,
     placeholder, multiline, numberOfLines = 1, typeValue, showClearButton = true,
     secureTextEntry, autoFocus, leftIcon, rightIcon, suffix, hint,
-    value = "", onChangeText, onBlur, error, touched, accentColor, ...inputProps
+    value = "", onChangeText, onBlur, error, touched, accentColor, containerRef, ...inputProps
   } = props;
 
   const inputRef = useRef<TextInput>(null);
@@ -111,7 +113,8 @@ const Input: React.FC<InputProps> = (props) => {
   const hasValue = !!value && value.length > 0;
 
   return (
-    <View style={[styles.container, style]}>
+    // collapsable={false}: Android gộp view chỉ có style layout, khi đó measureInWindow không đo được
+    <View ref={containerRef} collapsable={!containerRef} style={[styles.container, style]}>
       {label && (
         <View style={styles.labelRow}>
           <Animated.Text style={[styles.label, { color: labelColor }, labelStyle]}>

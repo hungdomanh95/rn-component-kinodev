@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import { FormikContext, getIn } from 'formik';
+import React, { useRef, useEffect, useCallback, useContext, useMemo, useState } from 'react';
 import {
   Keyboard,
   Platform,
@@ -9,6 +10,7 @@ import {
   StyleProp,
   ViewStyle,
 } from 'react-native';
+import { FieldRegistryContext } from './fieldRegistry';
 
 type ScrollBodyProps = {
   children: React.ReactNode;
@@ -43,6 +45,43 @@ const ScrollBody: React.FC<ScrollBodyProps> = ({
     keyboardPaddingRef.current = value;
     setKeyboardPadding(value);
   };
+
+  const fieldsRef = useRef(new Map<string, View>());
+  const fieldRegistry = useMemo(() => ({
+    register: (name: string, view: View | null) => {
+      if (view) fieldsRef.current.set(name, view);
+      else fieldsRef.current.delete(name);
+    },
+  }), []);
+
+  // Dùng useContext thay vì useFormikContext: ScrollBody cũng dùng ngoài Formik, khi đó
+  // context là undefined, còn useFormikContext sẽ log warning.
+  const formik = useContext(FormikContext);
+  const submitCount = formik?.submitCount ?? 0;
+  const isSubmitting = formik?.isSubmitting ?? false;
+
+  // Formik validate xong mới hạ isSubmitting về false, nên lúc này errors đã là kết quả
+  // của lần submit vừa rồi.
+  useEffect(() => {
+    if (!formik || submitCount === 0 || isSubmitting) return;
+    const erroredViews = [...fieldsRef.current]
+      .filter(([name]) => getIn(formik.errors, name))
+      .map(([, view]) => view);
+    if (erroredViews.length === 0) return;
+
+    let pending = erroredViews.length;
+    let firstY = Infinity;
+    erroredViews.forEach((view) => {
+      view.measureInWindow((_x: number, y: number) => {
+        firstY = Math.min(firstY, scrollOffsetRef.current + (y - containerWindowYRef.current));
+        pending -= 1;
+        if (pending > 0) return;
+        const realContentHeight = contentHeightRef.current - keyboardPaddingRef.current;
+        const maxScroll = Math.max(0, realContentHeight - layoutHeightRef.current);
+        scrollViewRef.current?.scrollTo({ y: Math.max(0, Math.min(firstY - TOP_INSET, maxScroll)), animated: true });
+      });
+    });
+  }, [submitCount, isSubmitting]);
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
@@ -160,7 +199,9 @@ const ScrollBody: React.FC<ScrollBodyProps> = ({
     >
       <TouchableWithoutFeedback onPress={handleDismissPress} accessible={false}>
         <View>
-          {children}
+          <FieldRegistryContext.Provider value={fieldRegistry}>
+            {children}
+          </FieldRegistryContext.Provider>
         </View>
       </TouchableWithoutFeedback>
     </ScrollView>

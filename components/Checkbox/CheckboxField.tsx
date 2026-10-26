@@ -1,5 +1,6 @@
 import { useField } from 'formik';
 import React, { useCallback } from 'react';
+import { useFieldRegistration } from '../ScrollBody/fieldRegistry';
 import Checkbox, { CheckboxProps } from './Checkbox';
 
 interface CheckboxFieldProps extends Omit<CheckboxProps, 'value' | 'onChange' | 'error' | 'touched'> {
@@ -9,6 +10,7 @@ interface CheckboxFieldProps extends Omit<CheckboxProps, 'value' | 'onChange' | 
 
 const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, testID, ...props }) => {
   const [, meta, helpers] = useField(name);
+  const registerRef = useFieldRegistration(name);
 
   // Checkbox là React.memo — cần onChange ổn định (không tạo arrow function mới mỗi render)
   // để memo thật sự có tác dụng khi field khác trong cùng Formik form thay đổi.
@@ -23,6 +25,7 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, testID, ...props })
   return (
     <Checkbox
       {...props}
+      containerRef={registerRef}
       testID={testID ?? name}
       value={!!meta.value}
       onChange={handleChange}
