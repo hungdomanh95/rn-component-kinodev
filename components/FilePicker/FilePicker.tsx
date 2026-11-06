@@ -1,4 +1,3 @@
-import { MediaType, openPicker } from "@baronha/react-native-multiple-image-picker";
 import Icon from "assets/icons";
 import React, { Fragment, useCallback, useState } from "react";
 import {
@@ -77,7 +76,7 @@ export type FilePickerProps = {
   id?: string;
   limit?: number;
   type?: ButtonType;
-  typePicker?: "camera" | "images" | "files" | "library";
+  typePicker?: "camera" | "images" | "files" | "library" | "all" | "photo";
   setLoading?: () => void;
   removeLoading?: () => void;
   /**
@@ -86,6 +85,8 @@ export type FilePickerProps = {
    * a host app attach status UI without it floating outside the card.
    */
   statusBadge?: React.ReactNode;
+  /** Hiện số thứ tự (1, 2, 3...) trên mỗi file ở chế độ multi, dùng khi thứ tự có ý nghĩa (vd ghép PDF). */
+  showOrder?: boolean;
 };
 
 const FilePicker: React.FC<FilePickerProps> = (props) => {
@@ -102,6 +103,7 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
     removeLoading,
     canRemoveItem,
     statusBadge,
+    showOrder,
   } = props;
 
   const currentCount = response.filter((item: any) => item.documentType === id).length;
@@ -157,15 +159,19 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
 
   const handleImagePick = async () => {
     try {
-      const responsePick = await openPicker({
-        mediaType: "image" as MediaType,
-        maxSelectedAssets: type === "single" ? 1 : remainingSlots,
+      // PHPicker (chạy ngoài process) thay cho TLPhotoPicker: TLPhotoPicker crash trên iOS 26 khi thư viện ảnh
+      // đổi lúc picker đang mở (photoLibraryDidChange -> performBatchUpdates assert).
+      const responsePick = await RnImagePicker.launchImageLibrary({
+        mediaType: "photo",
+        selectionLimit: type === "single" ? 1 : remainingSlots,
       });
+      if (responsePick.didCancel) return;
+      if (responsePick.errorCode) throw new Error(responsePick.errorMessage ?? responsePick.errorCode);
 
       const resizedImages = await Promise.all(
-        responsePick.map(async (image: any) => {
-          return resizeImage({ path: image.path, maxWidth: MAX_UPLOAD_DIMENSION, maxHeight: MAX_UPLOAD_DIMENSION });
-        })
+        (responsePick.assets ?? []).map((image) =>
+          resizeImage({ path: image.uri!, maxWidth: MAX_UPLOAD_DIMENSION, maxHeight: MAX_UPLOAD_DIMENSION })
+        )
       );
       const validImages = resizedImages.filter(Boolean);
       if (validImages.length === 0) return;
@@ -248,6 +254,11 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
                   .filter((item: any) => item.documentType === id)
                   .map((item: any, idx: number) => (
                     <View style={[styles.itemUpload, itemSize ? { width: itemSize, height: itemSize } : null]} key={idx}>
+                      {showOrder && (
+                        <View style={styles.orderBadge} pointerEvents="none">
+                          <Text style={styles.orderBadgeText}>{idx + 1}</Text>
+                        </View>
+                      )}
                       {(!canRemoveItem || canRemoveItem(item)) && (
                         <TouchableOpacity style={styles.buttonRemove} onPress={() => removeImage(item.documentType, idx)}>
                           <Icon name="x" color={colors.darkGray} size={15} />
@@ -261,7 +272,10 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
                             <Icon name="pdf" color={colors.white} size={40} />
                           </View>
                         ) : (
-                          <ThumbnailImage style={styles.viewIMAGE} uri={item?.path} />
+                          // View bọc ngoài (cùng style absolute phủ ô, để ảnh bên trong không co về 0): TouchableWithoutFeedback chèn props chạm vào child, ThumbnailImage không chuyển tiếp xuống native
+                          <View style={styles.viewIMAGE}>
+                            <ThumbnailImage style={styles.viewIMAGE} uri={item?.path} />
+                          </View>
                         )}
                       </TouchableWithoutFeedback>
                       {item.type === "application/pdf" && (
@@ -305,7 +319,9 @@ const FilePicker: React.FC<FilePickerProps> = (props) => {
                       <TouchableWithoutFeedback
                         onPress={() => handleOpenFile(item?.path?.includes("http") ? "link" : "local", item?.path)}
                       >
-                        <ThumbnailImage style={styles.viewIMAGE} uri={item?.path} priority={FastImage.priority.high} />
+                        <View style={styles.viewIMAGE}>
+                          <ThumbnailImage style={styles.viewIMAGE} uri={item?.path} priority={FastImage.priority.high} />
+                        </View>
                       </TouchableWithoutFeedback>
                     </Fragment>
                   ))}

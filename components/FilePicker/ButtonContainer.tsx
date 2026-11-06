@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { colors } from "../../theme";
 import ButtonPicker from "./ButtonPicker";
 
-type TypePicker = "camera" | "library" | "images" | "files";
+type TypePicker = "camera" | "library" | "images" | "files" | "all" | "photo";
 type ButtonType = "multi" | "single";
 
 type ButtonContainerProps = {
@@ -27,6 +27,24 @@ const ButtonContainer: React.FC<ButtonContainerProps> = ({
             <ButtonPicker disabled={disabled} onPress={() => handlePicker("images")} text="Chọn Ảnh" icon={"images"} color={"#1A67BB"} />
             <View style={styles.lineVertical} />
             <ButtonPicker disabled={disabled} onPress={() => handlePicker("pdf")} text="Đính kèm PDF" icon={"attachment"} color={colors.secondary} />
+          </>
+        );
+      case "all":
+        return (
+          <>
+            <ButtonPicker disabled={disabled} onPress={() => handlePicker("camera")} text="Chụp" icon={"camera"} color={colors.secondary} />
+            <View style={styles.lineVertical} />
+            <ButtonPicker disabled={disabled} onPress={() => handlePicker("images")} text="Ảnh" icon={"images"} color={"#1A67BB"} />
+            <View style={styles.lineVertical} />
+            <ButtonPicker disabled={disabled} onPress={() => handlePicker("pdf")} text="PDF" icon={"attachment"} color={colors.secondary} />
+          </>
+        );
+      case "photo":
+        return (
+          <>
+            <ButtonPicker disabled={disabled} onPress={() => handlePicker("camera")} text="Chụp" icon={"camera"} color={colors.secondary} />
+            <View style={styles.lineVertical} />
+            <ButtonPicker disabled={disabled} onPress={() => handlePicker("images")} text="Chọn Ảnh" icon={"images"} color={"#1A67BB"} />
           </>
         );
       case "camera":
